@@ -1,0 +1,20 @@
+# Todo
+ - equipments, notably weapon because everyone has a short sword now
+ - sneak
+ - weapon drawing and monster alertness
+ - skills
+ - check stats < 0
+ - monsters move outside fov
+ - water malus
+ - check error on abilities on death ???
+ - doors
+ - autoexplore ? :D<-<
+ - logs history
+ - long rest
+ - abilities for player
+ - monster packs and leaders
+ - better abilities weight with intelligence
+ - movement type (swim, fly, climb, etc)
+ - better death (drop inventory + corpse and remove entity)
+ - equipment quality/deterioration
+ - item weight
