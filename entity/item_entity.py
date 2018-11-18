@@ -1,12 +1,10 @@
 from enum import Enum
-
-import tcod
-
 from entity.generic_entity import GenericEntity
 
 
 class ItemType(Enum):
-    WEAPON = 1
+    POTION = 1
+    WEAPON = 2
 
 
 class ItemEntity(GenericEntity):
@@ -16,6 +14,10 @@ class ItemEntity(GenericEntity):
         self.monster = monster
         self.template = None
         self.usable = False
+
+    def set_template(self, template):
+        self.template = template
+        self.template.apply_template(self)
 
     def get_char(self):
         return self.template.char
@@ -29,6 +31,5 @@ class ItemEntity(GenericEntity):
     def get_description(self):
         return self.template.description
 
-
-class EquipmentEntity(ItemEntity):
-    pass
+    def use(self):
+        return self.template.use(self)

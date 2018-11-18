@@ -21,4 +21,8 @@ messages = {
     'inventory.use': 'Select an item to use it.',
     'inventory.switch_mode.description': '{0} : Switch to see item description.',
     'inventory.switch_mode.use': '{0} : Switch to use item.',
+    'monster.item.potion.use': '{0} drinks a {1}.',
+    'you.item.potion.use': '{0} drink a {1}.',
+    'monster.healed': '{0} seems in better shape.',
+    'you.healed': '{0} feel healed !',
 }

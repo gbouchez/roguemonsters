@@ -2,6 +2,9 @@
 
 A roguelike game in python using tcod.
 
+Very loosely based on
+[this python 3 + libtcod tutorial](http://rogueliketutorials.com/libtcod).
+
 ## Concept
 
 The main concept of the game (which is not implemented yet...) is to "switch"

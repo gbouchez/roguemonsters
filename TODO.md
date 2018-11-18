@@ -18,3 +18,8 @@
  - better death (drop inventory + corpse and remove entity)
  - equipment quality/deterioration
  - item weight
+ - move with classic keys
+ - keyboard layouts support
+ - add comments...
+ - clean code...
+ - item identification

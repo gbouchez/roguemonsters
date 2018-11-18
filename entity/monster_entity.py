@@ -125,7 +125,7 @@ class MonsterEntity(GenericEntity):
     def rest(self):
         self.rest_turns += 1
         if self.rest_turns >= self.get_rest_wait():
-            self.heal(1)
+            self.heal(1, False)
             self.rest_turns -= self.get_rest_wait()
 
         for status in self.status_effects:
@@ -134,9 +134,17 @@ class MonsterEntity(GenericEntity):
                 status.remove_effect()
                 self.status_effects.remove(status)
 
-    def heal(self, amount):
+    def heal(self, amount, with_message=True):
         self.hp += amount
         self.check_max_hp()
+        if with_message:
+            add_log_message(
+                LogMessage(
+                    get_message(get_monster_message_prefix(self) + 'healed')
+                    .format(str.capitalize(self.get_name())),
+                    tcod.desaturated_green if self.player is None else tcod.green
+                )
+            )
 
     def get_rest_amount(self):
         return max(1, int(self.constitution / 2))
@@ -150,7 +158,7 @@ class MonsterEntity(GenericEntity):
             add_log_message(
                 LogMessage(
                     get_message(get_monster_message_prefix(self) + "die")
-                    .format(str.capitalize(self.get_name())),
+                        .format(str.capitalize(self.get_name())),
                     tcod.orange if self.player is None else tcod.red
                 )
             )
@@ -235,7 +243,7 @@ class MonsterEntity(GenericEntity):
         for y1 in range(self.game_map.height):
             for x1 in range(self.game_map.width):
                 tcod.map_set_properties(fov, x1, y1, self.game_map.field[x1][y1].transparent,
-                                           self.game_map.field[x1][y1].walkable)
+                                        self.game_map.field[x1][y1].walkable)
 
         # Scan all the objects to see if there are objects that must be navigated around
         # Check also that the object isn't self or the target (so that the start and the end points are free)

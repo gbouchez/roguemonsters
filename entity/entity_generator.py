@@ -68,7 +68,7 @@ def generate_fighting_entity(game_map, level=1):
 
 
 def get_random_item_type(level):
-    return ItemType.WEAPON
+    return ItemType.POTION
 
 
 def generate_item_entity(game_map, level=1):
@@ -76,6 +76,6 @@ def generate_item_entity(game_map, level=1):
     templates = templates_by_type.get(item_type)
     template = choice(templates)
     item = ItemEntity(game_map=game_map)
-    item.template = template
+    item.set_template(template)
 
     return item
