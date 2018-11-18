@@ -20,13 +20,13 @@ def get_random_level(level=1):
     ]
     random_levels_weight = [
         1,
-        1/4,
-        1/3,
-        1/6,
-        1/5,
-        1/8,
-        1/7,
-        1/9,
+        1 / 4,
+        1 / 3,
+        1 / 6,
+        1 / 5,
+        1 / 8,
+        1 / 7,
+        1 / 9,
     ]
 
     sum_weights = sum(random_levels_weight)
@@ -49,7 +49,7 @@ def get_random_race_for_level(level=1):
 def get_random_class_for_monster(monster):
     possible_classes = []
     for monster_class in all_classes:
-            possible_classes.append(monster_class)
+        possible_classes.append(monster_class)
 
     return choice(possible_classes)
 
@@ -64,15 +64,21 @@ def generate_fighting_entity(game_map, level=1):
         monster.init_class(monster_class, level - race.get_level())
     monster.init_fighter()
 
+    for slot in monster.equip_slots:
+        item = generate_item_entity(level= monster.get_effective_level(), item_type=slot)
+        monster.inventory.add_item(item)
+        monster.inventory.equip(item)
+
     return monster
 
 
 def get_random_item_type(level):
-    return ItemType.POTION
+    return choice([ItemType.POTION, ItemType.WEAPON])
 
 
-def generate_item_entity(game_map, level=1):
-    item_type = get_random_item_type(level)
+def generate_item_entity(game_map=None, level=1, item_type=None):
+    if item_type is None:
+        item_type = get_random_item_type(level)
     templates = templates_by_type.get(item_type)
     template = choice(templates)
     item = ItemEntity(game_map=game_map)

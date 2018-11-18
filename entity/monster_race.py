@@ -2,6 +2,7 @@ from random import randint
 
 from entity.battle_abilities import BattleAbilityMoveToPlayer, BattleAbilityAttackPlayer
 from entity.battle_trait import get_random_possible_trait, TraitFastWalker
+from entity.item_entity import ItemType
 
 
 class MonsterRace:
@@ -21,6 +22,10 @@ class MonsterRace:
     traits_number_min = 2
     traits_number_max = 4
     traits_list = []
+    can_equip = True
+    equip_slots = [
+        ItemType.WEAPON
+    ]
 
     def get_level(self):
         total_stats = self.base_strength + self.base_dexterity + self.base_constitution + self.base_intelligence
@@ -55,6 +60,8 @@ class MonsterRace:
         number_of_traits = randint(self.traits_number_min, self.traits_number_max)
         for _ in range(number_of_traits):
             self.gain_trait(monster)
+        if self.can_equip:
+            monster.equip_slots += self.equip_slots
 
     def get_abilities(self):
         return [
@@ -137,6 +144,7 @@ class MonsterRaceGiantSpider(MonsterRace):
     random_constitution = 5
     random_intelligence = 3
     land_speed = 70
+    can_equip = False
     traits_list = [
         TraitFastWalker,
     ]
@@ -156,6 +164,7 @@ class MonsterRaceGiantRat(MonsterRace):
     random_constitution = 5
     random_intelligence = 3
     land_speed = 90
+    can_equip = False
     traits_list = [
         TraitFastWalker,
     ]

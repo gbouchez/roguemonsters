@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 class Inventory:
     def __init__(self, monster):
         self.items = []
@@ -5,12 +8,27 @@ class Inventory:
 
     def add_item(self, item):
         self.items.append(item)
-        item.game_map.entities.remove(item)
-        item.game_map = None
+        if item.game_map:
+            item.game_map.entities.remove(item)
+            item.game_map = None
         item.monster = self.monster
+
+    def equip(self, item):
+        if item not in self.items:
+            # todo error ? something else ?
+            return
+        for _ in list(filter(lambda entity: entity.template.item_type == item.template.item_type, self.items)):
+            _.equipped = False
+        item.equipped = True
 
     def remove_item(self, item):
         self.items.remove(item)
+
+    def get_equip(self, slot):
+        equips = list(filter(lambda entity: entity.template.item_type == slot, self.items))
+        if equips:
+            return equips.pop()
+        return None
 
     def get_item_at_char(self, char):
         index = None

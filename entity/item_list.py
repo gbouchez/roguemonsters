@@ -1,4 +1,4 @@
-from entity.item_template import ShortSwordTemplate, PotionHealLightTemplate
+from entity.item_template import ShortSwordTemplate, PotionHealLightTemplate, LongSwordTemplate, FlailTemplate
 from entity.item_entity import ItemType
 
 templates_by_type = {
@@ -7,5 +7,7 @@ templates_by_type = {
     ],
     ItemType.WEAPON: [
         ShortSwordTemplate,
+        LongSwordTemplate,
+        FlailTemplate,
     ],
 }

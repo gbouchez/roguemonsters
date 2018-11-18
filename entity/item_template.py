@@ -11,10 +11,12 @@ class ItemTemplate:
     name = ''
     color = 255, 255, 255
     usable = False
+    equipable = False
 
     @classmethod
     def apply_template(cls, item):
         item.usable = cls.usable
+        item.equipable = cls.equipable
 
     @classmethod
     def use(cls, item):
@@ -22,15 +24,18 @@ class ItemTemplate:
 
 
 class EquipmentTemplate(ItemTemplate):
-    attack = 0
+    damage = 0
     accuracy = 0
     armor_rate = 0
     armor_reduction = 0
+    weight = 0
+    equipable = True
+    slot = None
 
     @classmethod
     def apply_template(cls, item):
         super(EquipmentTemplate, cls).apply_template(item)
-        item.attack = cls.attack
+        item.damage = cls.damage
         item.accuracy = cls.accuracy
         item.armor_rate = cls.armor_rate
         item.armor_reduction = cls.armor_reduction
@@ -60,9 +65,28 @@ class PotionTemplate(ItemTemplate):
 class ShortSwordTemplate(WeaponTemplate):
     name = 'short sword'
     attack_speed = 90
-    attack = 3
+    damage = 3
     accuracy = 0
     description = 'A simple short sword.'
+    weight = 8
+
+
+class LongSwordTemplate(WeaponTemplate):
+    name = 'long sword'
+    attack_speed = 120
+    damage = 6
+    accuracy = -5
+    description = 'A simple long sword.'
+    weight = 20
+
+
+class FlailTemplate(WeaponTemplate):
+    name = 'flail'
+    attack_speed = 90
+    damage = 12
+    accuracy = -10
+    description = 'A simple flail.'
+    weight = 30
 
 
 class PotionHealLightTemplate(PotionTemplate):

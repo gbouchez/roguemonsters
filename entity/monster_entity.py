@@ -3,6 +3,7 @@ import math
 import tcod
 
 from entity.generic_entity import GenericEntity
+from entity.item_entity import ItemType
 from entity.monster_ai import BasicAI
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from inventory import Inventory
@@ -39,6 +40,7 @@ class MonsterEntity(GenericEntity):
             'intelligence': {},
         }
         self.inventory = Inventory(self)
+        self.equip_slots = []
 
     def is_blocking(self):
         if self.dead:
@@ -76,10 +78,27 @@ class MonsterEntity(GenericEntity):
         return self.hp
 
     def get_accuracy(self):
-        return 100 + self.get_dexterity()
+        accuracy = 100
+        weapon = self.inventory.get_equip(ItemType.WEAPON)
+        if not weapon:
+            return accuracy - 50 + self.get_dexterity()
+        weight_malus = weapon.template.weight - self.get_strength() * 2
+        if weight_malus == 0:
+            accuracy += self.get_dexterity()
+        else:
+            accuracy - weight_malus
+        accuracy += weapon.accuracy
+        return accuracy
 
     def get_damage(self):
-        return max(1, int(self.get_strength() / 2))
+        weapon = self.inventory.get_equip(ItemType.WEAPON)
+        if not weapon:
+            return max(1, 1 + int(self.get_strength() / 5))
+        damage = weapon.damage
+        weight_malus = max(0, weapon.template.weight - self.get_strength() * 2)
+        damage -= weight_malus
+
+        return max(1, damage)
 
     def get_dodge_components(self):
         components = {
@@ -158,7 +177,7 @@ class MonsterEntity(GenericEntity):
             add_log_message(
                 LogMessage(
                     get_message(get_monster_message_prefix(self) + "die")
-                        .format(str.capitalize(self.get_name())),
+                    .format(str.capitalize(self.get_name())),
                     tcod.orange if self.player is None else tcod.red
                 )
             )
@@ -183,8 +202,11 @@ class MonsterEntity(GenericEntity):
         name = "the " + self.monster_race.name
         if self.monster_class is not None:
             name += " " + self.monster_class.name
+        weapon = self.inventory.get_equip(ItemType.WEAPON)
+        if weapon is not None:
+            name += " wielding a " + weapon.get_name()
         if self.dead:
-            name += " corpse"
+            name += "'s corpse"
         return name
 
     def get_strength(self):

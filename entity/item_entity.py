@@ -14,6 +14,8 @@ class ItemEntity(GenericEntity):
         self.monster = monster
         self.template = None
         self.usable = False
+        self.equippable = False
+        self.equipped = False
 
     def set_template(self, template):
         self.template = template

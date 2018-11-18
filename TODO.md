@@ -23,3 +23,6 @@
  - add comments...
  - clean code...
  - item identification
+ - don't instanciate monster class ?
+ - item description in inventory
+ - better item usage
