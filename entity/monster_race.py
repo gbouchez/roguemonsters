@@ -24,7 +24,9 @@ class MonsterRace:
     traits_list = []
     can_equip = True
     equip_slots = [
-        ItemType.WEAPON
+        ItemType.WEAPON,
+        ItemType.SHIELD,
+        ItemType.BODY,
     ]
 
     def get_level(self):

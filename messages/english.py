@@ -25,4 +25,12 @@ messages = {
     'you.item.potion.use': '{0} drink a {1}.',
     'monster.healed': '{0} seems in better shape.',
     'you.healed': '{0} feel healed !',
+    'equip.slot.none': 'No equipment',
+    'equip.slot.2': 'Weapon',
+    'equip.slot.2.truncate': 'Weap',
+    'equip.slot.3': 'Shield',
+    'equip.slot.3.truncate': 'Shld',
+    'equip.slot.4': 'Body',
+    'equip.slot.4.truncate': 'Body',
+    'equip.no_equipment': 'None',
 }

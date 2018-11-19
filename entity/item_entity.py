@@ -5,6 +5,8 @@ from entity.generic_entity import GenericEntity
 class ItemType(Enum):
     POTION = 1
     WEAPON = 2
+    SHIELD = 3
+    BODY = 4
 
 
 class ItemEntity(GenericEntity):

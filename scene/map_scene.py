@@ -8,6 +8,7 @@ from entity.monster_entity import MonsterEntity
 from fov import initialize_fov, recompute_fov
 from input import InputType
 from game_log import get_message_pool
+from messages.messages import get_message
 from scene.generic_scene import GenericScene
 from scene.inventory_scene import InventoryScene
 from variables import field_console_width, field_console_height, stat_console_height, log_console_height, \
@@ -216,39 +217,56 @@ class MapScene(GenericScene):
         tcod.console_print_ex(self.stat_console, 1, 5, tcod.BKGND_NONE, tcod.LEFT, 'HP:')
         tcod.console_set_default_foreground(self.stat_console, tcod.black)
         tcod.console_print_ex(self.stat_console, 5, 5, tcod.BKGND_NONE, tcod.LEFT,
-                                 '{0: 3}/{1: 3}'.format(
-                                     self.player.entity.get_hp(),
-                                     self.player.entity.get_max_hp(),
-                                 ))
+                              '{0: 3}/{1: 3}'.format(
+                                  self.player.entity.get_hp(),
+                                  self.player.entity.get_max_hp(),
+                              ))
         tcod.console_set_default_foreground(self.stat_console, tcod.white)
 
         tcod.console_print_ex(self.stat_console, 1, 1, tcod.BKGND_NONE, tcod.LEFT,
-                                 'Race:  {0}'.format(str.upper(self.player.entity.monster_race.name)))
+                              'Race:  {0}'.format(str.upper(self.player.entity.monster_race.name)))
         class_name = 'None'
         class_level = '-'
         if self.player.entity.monster_class is not None:
             class_name = str.upper(self.player.entity.monster_class.name)
             class_level = self.player.entity.class_level
         tcod.console_print_ex(self.stat_console, 1, 2, tcod.BKGND_NONE, tcod.LEFT,
-                                 'Class: {0}'.format(class_name))
+                              'Class: {0}'.format(class_name))
         tcod.console_print_ex(self.stat_console, 1, 3, tcod.BKGND_NONE, tcod.LEFT,
-                                 'Level: {0}'.format(str(class_level)))
-        tcod.console_print_ex(self.stat_console, 1, 6, tcod.BKGND_NONE, tcod.LEFT,
-                                 'Land speed: {0: 2}'.format(
-                                     self.player.entity.land_speed
-                                 ))
-        tcod.console_print_ex(self.stat_console, 1, 8, tcod.BKGND_NONE, tcod.LEFT,
-                                 'STR {0:02} DEX {1:02} CON {2:02} INT {3:02}'.format(
-                                     self.player.entity.get_strength(),
-                                     self.player.entity.get_dexterity(),
-                                     self.player.entity.get_constitution(),
-                                     self.player.entity.get_intelligence(),
-                                 ))
-        tcod.console_print_ex(self.stat_console, 1, 10, tcod.BKGND_NONE, tcod.LEFT, 'Traits:')
-        console_y = 11
+                              'Level: {0}'.format(str(class_level)))
+        tcod.console_print_ex(self.stat_console, 1, 7, tcod.BKGND_NONE, tcod.LEFT,
+                              'STR {0:02} DEX {1:02} CON {2:02} INT {3:02}'.format(
+                                  self.player.entity.get_strength(),
+                                  self.player.entity.get_dexterity(),
+                                  self.player.entity.get_constitution(),
+                                  self.player.entity.get_intelligence(),
+                              ))
+        tcod.console_print_ex(self.stat_console, 1, 9, tcod.BKGND_NONE, tcod.LEFT, 'Equipment:')
+        console_y = 10
+        if self.player.entity.equip_slots:
+            for slot in self.player.entity.equip_slots:
+                slot_name = get_message('equip.slot.' + str(slot.value) + '.truncate')
+                equip = self.player.entity.inventory.get_equip(slot)
+                if equip:
+                    equip_name = equip.get_name()
+                else:
+                    equip_name = get_message('equip.no_equipment')
+                tcod.console_print_ex(self.stat_console, 1, console_y, tcod.BKGND_NONE, tcod.LEFT,
+                                      ' {0}: {1}'.format(slot_name, equip_name))
+                console_y += 1
+        else:
+            slot_name = get_message('equip.slot.none')
+            tcod.console_print_ex(self.stat_console, 1, console_y, tcod.BKGND_NONE, tcod.LEFT,
+                                  ' {0}'.format(slot_name))
+            console_y += 1
+
+        console_y += 1
+
+        tcod.console_print_ex(self.stat_console, 1, console_y, tcod.BKGND_NONE, tcod.LEFT, 'Traits:')
+        console_y += 1
         for trait in self.player.entity.traits:
             tcod.console_print_ex(self.stat_console, 1, console_y, tcod.BKGND_NONE, tcod.LEFT,
-                                     ' {0}'.format(trait.name))
+                                  ' {0}'.format(trait.name))
             console_y += 1
 
         under_mouse_lines = textwrap.wrap(self.under_mouse, stat_console_width)
@@ -256,11 +274,11 @@ class MapScene(GenericScene):
         i_line = 0
         for line in under_mouse_lines:
             tcod.console_print_ex(self.stat_console, 1, field_console_height + i_line, tcod.BKGND_NONE,
-                                     tcod.LEFT, line)
+                                  tcod.LEFT, line)
             i_line += 1
 
         tcod.console_blit(self.stat_console, 0, 0, stat_console_width, stat_console_height, 0, field_console_width,
-                             0)
+                          0)
 
     def render_clean(self, console):
         if not self.render_next:

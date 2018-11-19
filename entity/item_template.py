@@ -47,6 +47,16 @@ class WeaponTemplate(EquipmentTemplate):
     char = ')'
 
 
+class ShieldTemplate(EquipmentTemplate):
+    item_type = ItemType.SHIELD
+    char = '('
+
+
+class BodyTemplate(EquipmentTemplate):
+    item_type = ItemType.BODY
+    char = '='
+
+
 class PotionTemplate(ItemTemplate):
     usable = True
     item_type = ItemType.POTION
@@ -87,6 +97,18 @@ class FlailTemplate(WeaponTemplate):
     accuracy = -10
     description = 'A simple flail.'
     weight = 30
+
+
+class BucklerTemplate(ShieldTemplate):
+    name = 'buckler'
+    description = 'A small buckler.'
+    weight = 8
+
+
+class LeatherArmourTemplate(BodyTemplate):
+    name = 'leather armour'
+    description = 'An armour made of leather.'
+    weight = 20
 
 
 class PotionHealLightTemplate(PotionTemplate):

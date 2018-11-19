@@ -1,5 +1,9 @@
 # Todo
- - equipments, notably weapon because everyone has a short sword now
+ - useful equipment that does something
+ - shielding implementation
+ - armor implementation
+ - critical
+ - weapon attack speed
  - sneak
  - weapon drawing and monster alertness
  - skills
@@ -26,3 +30,4 @@
  - don't instanciate monster class ?
  - item description in inventory
  - better item usage
+ - "auxiliary" equip to equip shield or other in same "slot"
