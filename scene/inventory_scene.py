@@ -58,6 +58,7 @@ class InventoryScene(GenericScene):
                     elif self.mode == InventoryMode.USE and item.usable:
                         item.use()
                         self.player.entity.inventory.remove_item(item)
+                        self.player.entity.reset_turn(100)
                         return {'action': 'cancel'}
 
         self.render_next = True

@@ -8,6 +8,7 @@ from entity.item_entity import ItemType
 class MonsterRace:
     can_have_class = True
     name = ''
+    name_article = 'a'
     char = '?'
     color = 255, 255, 255
     base_strength = 9
@@ -97,6 +98,7 @@ class MonsterRaceGoblin(MonsterRace):
 
 class MonsterRaceOrc(MonsterRace):
     name = 'orc'
+    name_article = 'an'
     char = 'o'
     color = 120, 160, 40
     base_strength = 11

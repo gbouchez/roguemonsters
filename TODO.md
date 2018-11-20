@@ -1,9 +1,7 @@
 # Todo
- - useful equipment that does something
- - shielding implementation
- - armor implementation
+ - abilities for player
+ - MONSTER TAKEOVER
  - critical
- - weapon attack speed
  - sneak
  - weapon drawing and monster alertness
  - skills
@@ -15,7 +13,6 @@
  - autoexplore ? :D<-<
  - logs history
  - long rest
- - abilities for player
  - monster packs and leaders
  - better abilities weight with intelligence
  - movement type (swim, fly, climb, etc)

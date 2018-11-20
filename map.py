@@ -120,7 +120,7 @@ class Map:
         return False
 
     def get_names_at(self, x, y):
-        names = [entity.get_name() for entity in self.entities
+        names = [entity.get_full_name() for entity in self.entities
                  if entity.x == x and entity.y == y and tcod.map_is_in_fov(self.fov_map, entity.x, entity.y)]
         names = ', '.join(names)
 

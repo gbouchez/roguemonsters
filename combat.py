@@ -27,6 +27,20 @@ def attack(attacker, target):
 
     damage = make_damage_roll(attacker)
 
+    shield = target.get_shield_components()
+    shield_value = sum(shield.values())
+    if roll - shield_value <= 0:
+        shield_block = randint(0, target.get_shield_block())
+        if damage <= shield_block:
+            add_log_message(
+                LogMessage(
+                    get_message(message_key_prefix + "miss_block")
+                    .format(str.capitalize(attacker.get_name()), target.get_name()),
+                    tcod.grey
+                )
+            )
+            return
+
     armor = target.get_armor_components()
     armor_value = sum(armor.values())
     roll -= armor_value
@@ -62,10 +76,10 @@ def attack(attacker, target):
     target.take_damage(damage)
 
 
-
 def make_attack_roll(monster):
     roll = randint(1, max(1, monster.get_accuracy()))
     return roll
+
 
 def make_damage_roll(monster):
     roll = randint(1, monster.get_damage())

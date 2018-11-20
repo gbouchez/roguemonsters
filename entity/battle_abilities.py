@@ -58,7 +58,7 @@ class BattleAbilityAttackPlayer(BattleAbility):
 
     @staticmethod
     def reset_turn(monster):
-        monster.reset_turn(100 - monster.get_dexterity())
+        monster.reset_turn(monster.get_attack_speed())
 
     @classmethod
     def use_ability(cls, monster, player):

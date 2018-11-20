@@ -21,6 +21,7 @@ class MonsterEntity(GenericEntity):
         self.hp = 0
         self.max_hp = 0
         self.land_speed = 100
+        self.attack_speed = 100
         self.strength = 10
         self.dexterity = 3
         self.constitution = 3
@@ -93,29 +94,62 @@ class MonsterEntity(GenericEntity):
     def get_damage(self):
         weapon = self.inventory.get_equip(ItemType.WEAPON)
         if not weapon:
-            return max(1, 1 + int(self.get_strength() / 5))
+            return max(1, 1 + self.get_strength() // 5)
         damage = weapon.damage
-        weight_malus = max(0, weapon.template.weight - self.get_strength() * 2)
+        weight_malus = max(0, (weapon.template.weight - self.get_strength()) // 3)
         damage -= weight_malus
 
         return max(1, damage)
 
     def get_dodge_components(self):
-        components = {
-            'dexterity': self.get_dexterity(),
-        }
+        components = {'dexterity': self.get_dexterity(), 'malus': self.get_equipment_malus()}
         return components
 
+    def get_shield_components(self):
+        components = {}
+        shield = self.inventory.get_equip(ItemType.SHIELD)
+        if shield:
+            components['shield'] = shield.shield_rate
+        components['malus'] = self.get_equipment_malus()
+        return components
+
+    def get_shield_block(self):
+        block = 0
+        shield = self.inventory.get_equip(ItemType.SHIELD)
+        if shield:
+            block += shield.shield_block
+        return block
+
     def get_armor_components(self):
-        # todo armors
-        components = {
-            'unknown_armor': 40,
-        }
+        components = {}
+        body = self.inventory.get_equip(ItemType.BODY)
+        if body:
+            components['body'] = body.armor_rate
+        components['malus'] = self.get_equipment_malus()
         return components
 
     def get_armor_reduction(self):
-        # todo armors
-        return 5
+        reduction = 0
+        body = self.inventory.get_equip(ItemType.BODY)
+        if body:
+            reduction += body.armor_reduction
+        return reduction
+
+    def get_attack_speed(self):
+        speed = self.attack_speed
+        weapon = self.inventory.get_equip(ItemType.WEAPON)
+        if weapon:
+            speed = weapon.attack_speed
+        speed = max(25, speed - self.get_equipment_malus())
+        return speed
+
+    def get_equipment_malus(self):
+        malus = 0
+        for slot in self.equip_slots:
+            equip = self.inventory.get_equip(slot)
+            if equip:
+                malus += max(0, equip.template.weight - self.get_strength())
+        return malus
 
     def get_effective_level(self):
         level = self.monster_race.get_level()
@@ -202,11 +236,30 @@ class MonsterEntity(GenericEntity):
         name = "the " + self.monster_race.name
         if self.monster_class is not None:
             name += " " + self.monster_class.name
+
+        return name
+
+    def get_full_name(self):
+        name = ''
+        if self.player is not None:
+            if self.dead:
+                name += "your corpse "
+            else:
+                name += 'you, '
+        else:
+            if self.dead:
+                name += "the corpse of "
+            if self.name is not None:
+                name += str.capitalize(self.name) + ', '
+        name += self.monster_race.name_article + ' ' + self.monster_race.name
+        if self.monster_class is not None:
+            name += " " + self.monster_class.name
+        body = self.inventory.get_equip(ItemType.BODY)
+        if body:
+            name += " in " + body.get_name()
         weapon = self.inventory.get_equip(ItemType.WEAPON)
         if weapon is not None:
             name += " wielding a " + weapon.get_name()
-        if self.dead:
-            name += "'s corpse"
         return name
 
     def get_strength(self):

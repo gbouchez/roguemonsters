@@ -21,3 +21,6 @@ class GenericEntity:
 
     def get_name(self):
         return self.name
+
+    def get_full_name(self):
+        return self.get_name()
