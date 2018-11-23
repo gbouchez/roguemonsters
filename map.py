@@ -94,8 +94,24 @@ class Map:
         entity.y = y
         self.entities.append(entity)
 
-    def get_random_monster(self):
-        return choice(list(filter(lambda entity: isinstance(entity, MonsterEntity), self.entities)))
+    def take_over_random_monster(self, player, in_fov=False):
+        if player.entity:
+            player.entity.player = None
+        player.entity = self.get_random_monster(in_fov=in_fov, only_alive=True)
+        player.entity.player = player
+
+    def get_random_monster(self, in_fov=False, only_alive=True):
+        return choice(
+            list(
+                filter(
+                    lambda entity:
+                    isinstance(entity, MonsterEntity)
+                    and (not in_fov or tcod.map_is_in_fov(self.fov_map, entity.x, entity.y))
+                    and (not only_alive or not entity.dead),
+                    self.entities
+                )
+            )
+        )
 
     def get_monster_at(self, destination_x, destination_y):
         for entity in self.entities:

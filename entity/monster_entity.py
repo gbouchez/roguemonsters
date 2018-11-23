@@ -289,10 +289,24 @@ class MonsterEntity(GenericEntity):
         del self.stat_bonuses.get(stat)[source]
 
     def get_abilities(self):
-        abilities = self.monster_race.get_abilities()
+        abilities = []
+        if self.player is not None:
+            abilities += self.player.get_abilities()
+        abilities += self.monster_race.get_abilities()
         if self.monster_class is not None:
             abilities += self.monster_class.get_abilities()
         return abilities
+
+    def get_ability_at_char(self, char):
+        index = None
+        if ord('a') <= ord(char) <= ord('z'):
+            index = ord(char) - ord('a')
+        elif ord('A') <= ord(char) <= ord('Z'):
+            index = 26 + ord(char) - ord('A')
+        display_abilities = list(filter(lambda ability: not ability.hidden, self.get_abilities()))
+        if index is not None and len(display_abilities) > index:
+            return display_abilities[index]
+        return None
 
     def move_towards(self, target_x, target_y):
         dx = target_x - self.x

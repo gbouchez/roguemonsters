@@ -9,6 +9,7 @@ from fov import initialize_fov, recompute_fov
 from input import InputType
 from game_log import get_message_pool
 from messages.messages import get_message
+from scene.ability_scene import AbilityScene
 from scene.generic_scene import GenericScene
 from scene.inventory_scene import InventoryScene
 from variables import field_console_width, field_console_height, stat_console_height, log_console_height, \
@@ -104,6 +105,9 @@ class MapScene(GenericScene):
             elif game_input.value == 'i':
                 inventory_scene = InventoryScene(self.player, self)
                 return {'action': 'change_scene', 'scene': inventory_scene}
+            elif game_input.value == 'a':
+                ability_scene = AbilityScene(self.player, self)
+                return {'action': 'change_scene', 'scene': ability_scene}
 
         if player_took_action:
             self.player.entity.rest()
@@ -294,10 +298,6 @@ class MapScene(GenericScene):
                 continue
             tcod.console_put_char(self.field_console, entity.x + dx, entity.y + dy, ' ', tcod.BKGND_NONE)
         self.render_next = False
-
-    def take_over_random_monster(self):
-        self.player.entity = self.game_map.get_random_monster()
-        self.player.entity.player = self.player
 
     def manage_all_entities(self):
         if self.player.entity.dead:

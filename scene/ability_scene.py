@@ -8,18 +8,18 @@ from render import screen_width, screen_height
 from scene.generic_scene import GenericScene
 
 
-class InventoryMode(Enum):
+class AbilityMode(Enum):
     DESCRIPTION = 1
     USE = 2
 
 
-class InventoryScene(GenericScene):
+class AbilityScene(GenericScene):
     def __init__(self, player, previous_scene=None):
         super().__init__()
         self.player = player
         self.previous_scene = previous_scene
-        self.mode = InventoryMode.DESCRIPTION
-        self.item = None
+        self.mode = AbilityMode.DESCRIPTION
+        self.ability = None
         self.console = tcod.console_new(screen_width, screen_height)
         tcod.console_set_default_foreground(self.console, tcod.white)
         tcod.console_set_default_background(self.console, tcod.black)
@@ -27,8 +27,8 @@ class InventoryScene(GenericScene):
     def manage_input(self, game_input):
         super_input = super().manage_input(game_input)
         if super_input is not None:
-            if super_input['action'] == 'cancel' and self.item is not None:
-                self.item = None
+            if super_input['action'] == 'cancel' and self.ability is not None:
+                self.ability = None
                 self.render_next = True
                 return None
             return super_input
@@ -38,19 +38,18 @@ class InventoryScene(GenericScene):
 
         if game_input.type == InputType.CHAR:
             if game_input.value == '?':
-                if self.mode == InventoryMode.DESCRIPTION:
-                    self.mode = InventoryMode.USE
+                if self.mode == AbilityMode.DESCRIPTION:
+                    self.mode = AbilityMode.USE
                 else:
-                    self.mode = InventoryMode.DESCRIPTION
+                    self.mode = AbilityMode.DESCRIPTION
             elif (ord('a') <= ord(game_input.value) <= ord('z')) \
                     or (ord('A') <= ord(game_input.value) <= ord('Z')):
-                item = self.player.entity.inventory.get_item_at_char(game_input.value)
-                if item is not None:
-                    if self.mode == InventoryMode.DESCRIPTION:
-                        self.item = item
-                    elif self.mode == InventoryMode.USE and item.usable:
-                        item.use()
-                        self.player.entity.inventory.remove_item(item)
+                ability = self.player.entity.get_ability_at_char(game_input.value)
+                if ability is not None:
+                    if self.mode == AbilityMode.DESCRIPTION:
+                        self.ability = ability
+                    elif self.mode == AbilityMode.USE:
+                        ability.use_ability(self.player.entity, self.player)
                         self.player.entity.reset_turn(100)
                         return {'action': 'cancel'}
 
@@ -62,17 +61,17 @@ class InventoryScene(GenericScene):
             return
         tcod.console_clear(self.console)
 
-        if self.item is None:
+        if self.ability is None:
             self.render_list()
 
         tcod.console_blit(self.console, 0, 0, screen_width, screen_height, 0, 0, 0)
 
     def render_list(self):
         tcod.console_set_default_foreground(self.console, tcod.white)
-        if self.mode == InventoryMode.DESCRIPTION:
-            message = get_message('inventory.description')
+        if self.mode == AbilityMode.DESCRIPTION:
+            message = get_message('ability_menu.description')
         else:
-            message = get_message('inventory.use')
+            message = get_message('ability_menu.use')
         tcod.console_print_ex(
             self.console,
             1,
@@ -83,33 +82,30 @@ class InventoryScene(GenericScene):
         )
 
         index = 0
-        for item in self.player.entity.inventory.items:
+        for ability in self.player.entity.get_abilities():
+            if ability.hidden:
+                continue
             letter_index = ord('a') + index
             if letter_index > ord('z'):
                 letter_index = ord('A') + index - 26
 
-            if item.usable or self.mode == InventoryMode.DESCRIPTION:
-                color = item.get_color()
-                message = '{0}) {1}'
-            else:
-                color = tcod.dark_grey
-                message = '   {1}'
+            message = '{0}) {1}'
 
-            tcod.console_set_default_foreground(self.console, color)
+            tcod.console_set_default_foreground(self.console, tcod.white)
             tcod.console_print_ex(
                 self.console,
                 2,
                 3 + index,
                 tcod.BKGND_NONE,
                 tcod.LEFT,
-                message.format(chr(letter_index), item.get_name())
+                message.format(chr(letter_index), ability.get_name())
             )
             index += 1
 
-        if self.mode == InventoryMode.DESCRIPTION:
-            message = get_message('inventory.switch_mode.use')
+        if self.mode == AbilityMode.DESCRIPTION:
+            message = get_message('ability_menu.switch_mode.use')
         else:
-            message = get_message('inventory.switch_mode.description')
+            message = get_message('ability_menu.switch_mode.description')
 
         tcod.console_set_default_foreground(self.console, tcod.desaturated_green)
         tcod.console_print_ex(

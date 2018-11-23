@@ -26,6 +26,32 @@ class BattleAbility:
     def get_weight(monster, player):
         return 1
 
+    @classmethod
+    def get_name(cls):
+        return cls.name
+
+
+class BattleAbilityTakeOverRandomMonster(BattleAbility):
+    name = 'Monster takeover'
+
+    @staticmethod
+    def reset_turn(monster):
+        monster.reset_turn(200)
+
+    @classmethod
+    def use_ability(cls, monster, player):
+        monster.game_map.take_over_random_monster(player, in_fov=True)
+        cls.reset_turn(monster)
+        cls.reset_turn(player.entity)
+
+    @staticmethod
+    def meet_prerequisites(monster, player):
+        return False
+
+    @staticmethod
+    def get_weight(monster, player):
+        return 0
+
 
 class BattleAbilityMoveToPlayer(BattleAbility):
     name = ''
@@ -120,7 +146,7 @@ class BattleAbilityPickItemUp(BattleAbility):
 
 
 class BattleAbilityRage(BattleAbility):
-    name = ''
+    name = 'Rage'
 
     @staticmethod
     def reset_turn(monster):

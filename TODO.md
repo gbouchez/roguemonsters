@@ -1,6 +1,7 @@
 # Todo
+ - Better monster takeover
+ - drawbacks to monster takeover
  - abilities for player
- - MONSTER TAKEOVER
  - critical
  - sneak
  - weapon drawing and monster alertness
@@ -28,3 +29,7 @@
  - item description in inventory
  - better item usage
  - "auxiliary" equip to equip shield or other in same "slot"
+ - Refactor list scenes for inheritance
+ - refactor get....atchar
+ - Refactor help summary in menus
+ - clean instances/static/classes
