@@ -1,6 +1,7 @@
 # Todo
  - Display status effects in stats panel instead of traits
  - ... add traits
+ - add weights to monster takeover
  - background color for soulbound monsters ?
  - abilities for player
  - critical
