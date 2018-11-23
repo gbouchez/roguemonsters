@@ -23,6 +23,7 @@ class MapScene(GenericScene):
         self.game_map = game_map
         self.fov_recompute = True
         self.initialize_map(game_map)
+        self.player_took_action = False
         self.field_console = tcod.console_new(field_console_width, field_console_height)
         self.stat_console = tcod.console_new(stat_console_width, stat_console_height)
         self.log_console = tcod.console_new(log_console_width, log_console_height)
@@ -55,8 +56,6 @@ class MapScene(GenericScene):
 
         if self.player.entity.dead:
             return None
-
-        player_took_action = False
 
         if game_input.type == InputType.KEY:
             if game_input.value == tcod.KEY_UP \
@@ -94,14 +93,14 @@ class MapScene(GenericScene):
                 else:
                     BattleAbilityMoveToPlayer.reset_turn(self.player.entity)
                 self.fov_recompute = True
-                player_took_action = True
+                self.player_took_action = True
         elif game_input.type == InputType.CHAR:
             if game_input.value == 's':
                 self.player.entity.reset_turn(100)
-                player_took_action = True
+                self.player_took_action = True
             elif game_input.value == ',':
                 BattleAbilityPickItemUp.use_ability(self.player.entity, self.player)
-                player_took_action = True
+                self.player_took_action = True
             elif game_input.value == 'i':
                 inventory_scene = InventoryScene(self.player, self)
                 return {'action': 'change_scene', 'scene': inventory_scene}
@@ -109,7 +108,8 @@ class MapScene(GenericScene):
                 ability_scene = AbilityScene(self.player, self)
                 return {'action': 'change_scene', 'scene': ability_scene}
 
-        if player_took_action:
+        if self.player_took_action:
+            self.player_took_action = False
             self.player.entity.rest()
             self.render_next = True
             self.manage_all_entities()

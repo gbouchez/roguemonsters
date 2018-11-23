@@ -26,10 +26,12 @@ class Game:
             if input_return is None:
                 continue
             if input_return['action']:
-                if input_return['action'] == 'cancel':
+                if input_return['action'] == 'cancel' or input_return['action'] == 'cancel_with_action':
                     if self.current_scene.previous_scene is not None:
                         current = self.current_scene
                         self.current_scene = self.current_scene.previous_scene
+                        if input_return['action'] == 'cancel_with_action' and isinstance(self.current_scene, MapScene):
+                            self.current_scene.player_took_action = True
                         self.current_scene.render_next = True
                         del current
                     else:

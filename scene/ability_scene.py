@@ -50,8 +50,7 @@ class AbilityScene(GenericScene):
                         self.ability = ability
                     elif self.mode == AbilityMode.USE:
                         ability.use_ability(self.player.entity, self.player)
-                        self.player.entity.reset_turn(100)
-                        return {'action': 'cancel'}
+                        return {'action': 'cancel_with_action'}
 
         self.render_next = True
         return None

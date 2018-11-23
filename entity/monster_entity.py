@@ -157,6 +157,10 @@ class MonsterEntity(GenericEntity):
             level += self.class_level
         return level
 
+    def get_soul_power(self):
+        # TODO better calc
+        return self.get_effective_level() + self.get_intelligence()
+
     def get_char(self):
         if self.player is not None:
             return '@'
@@ -186,6 +190,12 @@ class MonsterEntity(GenericEntity):
             if status.turns == 0:
                 status.remove_effect()
                 self.status_effects.remove(status)
+
+    def has_status(self, search_status):
+        for status in self.status_effects:
+            if isinstance(status, search_status):
+                return True
+        return False
 
     def heal(self, amount, with_message=True):
         self.hp += amount

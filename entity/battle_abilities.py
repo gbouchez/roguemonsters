@@ -1,7 +1,9 @@
+from random import randint
+
 import tcod
 
 from combat import attack
-from entity.status_effects import StatusEffectRage
+from entity.status_effects import StatusEffectRage, StatusEffectSoulbound, StatusEffectFatigue
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from messages.messages import get_message
 
@@ -42,7 +44,18 @@ class BattleAbilityTakeOverRandomMonster(BattleAbility):
     def use_ability(cls, monster, player):
         monster.game_map.take_over_random_monster(player, in_fov=True)
         cls.reset_turn(monster)
+        if player.entity == monster:
+            add_log_message(
+                LogMessage(
+                    get_message('soulsteal.fail'),
+                    tcod.white
+                )
+            )
+            return
         cls.reset_turn(player.entity)
+        soulbound_turns = monster.get_soul_power() + player.entity.get_soul_power()
+        monster.status_effects.append(StatusEffectSoulbound(monster, soulbound_turns * randint(27, 33)))
+        player.entity.status_effects.append(StatusEffectSoulbound(player.entity, soulbound_turns * randint(9, 11)))
 
     @staticmethod
     def meet_prerequisites(monster, player):
@@ -159,9 +172,8 @@ class BattleAbilityRage(BattleAbility):
 
     @staticmethod
     def meet_prerequisites(monster, player):
-        for status in monster.status_effects:
-            if isinstance(status, StatusEffectRage):
-                return False
+        if monster.has_status(StatusEffectRage) or monster.has_status(StatusEffectFatigue):
+            return False
         if monster.distance_to(player.entity) < 2:
             return True
         return False

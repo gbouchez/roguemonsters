@@ -1,6 +1,7 @@
 # Todo
- - Better monster takeover
- - drawbacks to monster takeover
+ - Display status effects in stats panel instead of traits
+ - ... add traits
+ - background color for soulbound monsters ?
  - abilities for player
  - critical
  - sneak
@@ -33,3 +34,7 @@
  - refactor get....atchar
  - Refactor help summary in menus
  - clean instances/static/classes
+ - player level that affects soul power
+ - Add confirmation when quitting game... =(
+ - clean messages colors...
+ - prevent rage when already in rage or fatigued

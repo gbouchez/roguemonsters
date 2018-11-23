@@ -17,14 +17,29 @@ class StatusEffect:
         return
 
 
+class StatusEffectSoulbound(StatusEffect):
+    name = 'Soulbound'
+
+    def __init__(self, monster, turns):
+        super().__init__(monster, turns)
+
+    def pass_turn(self):
+        self.turns -= 1
+
+    def remove_effect(self):
+        pass
+
+
 class StatusEffectRage(StatusEffect):
     name = 'Rage'
 
     def __init__(self, monster, turns):
         self.elapsed_turns = 0
         super().__init__(monster, turns)
-        monster.add_stat_bonus('strength', 'rage', 4)
+        monster.add_stat_bonus('strength', 'rage', 8)
         monster.add_stat_bonus('constitution', 'rage', 4)
+        monster.add_stat_bonus('dexterity', 'rage', -4)
+        monster.add_stat_bonus('intelligence', 'rage', -8)
         if tcod.map_is_in_fov(monster.game_map.fov_map, monster.x, monster.y):
             add_log_message(
                 LogMessage(
@@ -41,11 +56,48 @@ class StatusEffectRage(StatusEffect):
     def remove_effect(self):
         self.monster.remove_stat_bonus('strength', 'rage')
         self.monster.remove_stat_bonus('constitution', 'rage')
+        self.monster.remove_stat_bonus('dexterity', 'rage')
+        self.monster.remove_stat_bonus('intelligence', 'rage')
         if tcod.map_is_in_fov(self.monster.game_map.fov_map, self.monster.x, self.monster.y):
             add_log_message(
                 LogMessage(
                     get_message(get_monster_message_prefix(self.monster) + "rage.end")
                     .format(str.capitalize(self.monster.get_name())),
                     tcod.desaturated_blue
+                )
+            )
+        self.monster.status_effects.append(StatusEffectFatigue(self.monster, self.elapsed_turns * 2))
+
+
+class StatusEffectFatigue(StatusEffect):
+    name = 'Fatigue'
+
+    def __init__(self, monster, turns):
+        super().__init__(monster, turns)
+        monster.add_stat_bonus('strength', 'fatigue', -2)
+        monster.add_stat_bonus('constitution', 'fatigue', -2)
+        monster.add_stat_bonus('dexterity', 'fatigue', -2)
+        if tcod.map_is_in_fov(monster.game_map.fov_map, monster.x, monster.y):
+            add_log_message(
+                LogMessage(
+                    get_message(get_monster_message_prefix(self.monster) + "fatigue.begin")
+                    .format(str.capitalize(self.monster.get_name())),
+                    tcod.dark_orange
+                )
+            )
+
+    def pass_turn(self):
+        self.turns -= 1
+
+    def remove_effect(self):
+        self.monster.remove_stat_bonus('strength', 'fatigue')
+        self.monster.remove_stat_bonus('constitution', 'fatigue')
+        self.monster.remove_stat_bonus('dexterity', 'fatigue')
+        if tcod.map_is_in_fov(self.monster.game_map.fov_map, self.monster.x, self.monster.y):
+            add_log_message(
+                LogMessage(
+                    get_message(get_monster_message_prefix(self.monster) + "fatigue.end")
+                    .format(str.capitalize(self.monster.get_name())),
+                    tcod.desaturated_orange
                 )
             )

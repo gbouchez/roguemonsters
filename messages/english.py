@@ -15,6 +15,10 @@ messages = {
     'you.rage.begin': '{0} rage !',
     'monster.rage.end': '{0}\'s rage vanishes.',
     'you.rage.end': 'Your rage vanishes.',
+    'monster.fatigue.begin': '{0} is now fatigued.',
+    'you.fatigue.begin': '{0} are now fatigued.',
+    'monster.fatigue.end': '{0}\'s seems less fatigued.',
+    'you.fatigue.end': 'Your fatigue vanishes.',
     'monster.pickup_item': '{0}\'s grabs {1} on the ground.',
     'you.pickup_item': '{0} grab {1} on the ground.',
     'monster.pickup_item.none': 'There is nothing here.',
@@ -39,4 +43,5 @@ messages = {
     'equip.slot.4': 'Body',
     'equip.slot.4.truncate': 'Body',
     'equip.no_equipment': 'None',
+    'soulsteal.fail': 'You fail to take another body.'
 }
