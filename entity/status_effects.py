@@ -1,3 +1,5 @@
+from math import ceil
+
 import tcod
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from messages.messages import get_message
@@ -10,7 +12,7 @@ class StatusEffect:
         self.monster = monster
         self.turns = turns
 
-    def pass_turn(self):
+    def pass_turn(self, monster):
         self.turns -= 1
 
     def remove_effect(self):
@@ -23,7 +25,7 @@ class StatusEffectSoulbound(StatusEffect):
     def __init__(self, monster, turns):
         super().__init__(monster, turns)
 
-    def pass_turn(self):
+    def pass_turn(self, monster):
         self.turns -= 1
 
     def remove_effect(self):
@@ -49,7 +51,7 @@ class StatusEffectRage(StatusEffect):
                 )
             )
 
-    def pass_turn(self):
+    def pass_turn(self, monster):
         self.turns -= 1
         self.elapsed_turns += 1
 
@@ -69,6 +71,43 @@ class StatusEffectRage(StatusEffect):
         self.monster.status_effects.append(StatusEffectFatigue(self.monster, self.elapsed_turns * 2))
 
 
+class StatusEffectSpiderWeb(StatusEffect):
+    name = 'Spider web'
+
+    def __init__(self, monster, turns):
+        self.total_turns = turns
+        super().__init__(monster, turns)
+        monster.add_stat_bonus('dexterity', 'spider_web', -5)
+        monster.add_stat_bonus('land_speed', 'spider_web', 50)
+        if tcod.map_is_in_fov(monster.game_map.fov_map, monster.x, monster.y):
+            add_log_message(
+                LogMessage(
+                    get_message(get_monster_message_prefix(self.monster) + "spider_web.begin")
+                    .format(str.capitalize(self.monster.get_name())),
+                    tcod.dark_orange
+                )
+            )
+
+    def pass_turn(self, monster):
+        self.turns -= 1
+        multiplier = self.turns / self.total_turns
+
+        monster.add_stat_bonus('dexterity', 'spider_web', ceil(-5 * multiplier))
+        monster.add_stat_bonus('land_speed', 'spider_web', int(50 * multiplier))
+
+    def remove_effect(self):
+        self.monster.remove_stat_bonus('dexterity', 'spider_web')
+        self.monster.remove_stat_bonus('land_speed', 'spider_web')
+        if tcod.map_is_in_fov(self.monster.game_map.fov_map, self.monster.x, self.monster.y):
+            add_log_message(
+                LogMessage(
+                    get_message(get_monster_message_prefix(self.monster) + "spider_web.end")
+                    .format(str.capitalize(self.monster.get_name())),
+                    tcod.desaturated_orange
+                )
+            )
+
+
 class StatusEffectFatigue(StatusEffect):
     name = 'Fatigue'
 
@@ -86,7 +125,7 @@ class StatusEffectFatigue(StatusEffect):
                 )
             )
 
-    def pass_turn(self):
+    def pass_turn(self, monster):
         self.turns -= 1
 
     def remove_effect(self):

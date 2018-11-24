@@ -39,6 +39,7 @@ class MonsterEntity(GenericEntity):
             'dexterity': {},
             'constitution': {},
             'intelligence': {},
+            'land_speed': {},
         }
         self.inventory = Inventory(self)
         self.equip_slots = []
@@ -186,7 +187,7 @@ class MonsterEntity(GenericEntity):
             self.rest_turns -= self.get_rest_wait()
 
         for status in self.status_effects:
-            status.pass_turn()
+            status.pass_turn(self)
             if status.turns == 0:
                 status.remove_effect()
                 self.status_effects.remove(status)
@@ -271,6 +272,9 @@ class MonsterEntity(GenericEntity):
         if weapon is not None:
             name += " wielding a " + weapon.get_name()
         return name
+
+    def get_land_speed(self):
+        return self.land_speed + self.get_total_bonus('land_speed')
 
     def get_strength(self):
         return self.strength + self.get_total_bonus('strength')

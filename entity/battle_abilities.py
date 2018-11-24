@@ -2,7 +2,7 @@ import tcod
 from enum import Enum
 from random import randint
 from combat import attack
-from entity.status_effects import StatusEffectRage, StatusEffectSoulbound, StatusEffectFatigue
+from entity.status_effects import StatusEffectRage, StatusEffectSoulbound, StatusEffectFatigue, StatusEffectSpiderWeb
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from messages.messages import get_message
 
@@ -90,7 +90,7 @@ class BattleAbilityMoveToPlayer(BattleAbility):
 
     @staticmethod
     def reset_turn(monster):
-        monster.reset_turn(monster.land_speed)
+        monster.reset_turn(monster.get_land_speed())
 
     @classmethod
     def use_ability(cls, monster, target):
@@ -199,3 +199,30 @@ class BattleAbilityRage(BattleAbility):
     @staticmethod
     def get_weight(monster, target):
         return 2 - (monster.get_hp() / monster.get_max_hp()) * 2
+
+
+class BattleAbilitySpiderWeb(BattleAbility):
+    name = 'Throw spider web'
+    targeting = AbilityTargeting.LOS
+    targeting_distance = 5
+
+    @staticmethod
+    def reset_turn(monster):
+        monster.reset_turn(130 - monster.get_constitution())
+
+    @classmethod
+    def use_ability(cls, monster, target):
+        target.status_effects.append(StatusEffectSpiderWeb(target, monster.get_constitution() * 3))
+        cls.reset_turn(monster)
+
+    @staticmethod
+    def meet_prerequisites(monster, target):
+        if target.has_status(StatusEffectSpiderWeb):
+            return False
+        if monster.distance_to(target) < 5:
+            return True
+        return False
+
+    @staticmethod
+    def get_weight(monster, target):
+        return 2

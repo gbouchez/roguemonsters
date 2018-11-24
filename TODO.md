@@ -1,24 +1,28 @@
 # Todo
+ - Translation for spider web
+ - fix black screen on escape targeting (regression ?)
+ - add natural weapon/armor for beasts
+ - spider web stack to entanglement
+ - blocked LOS targeting (spider web)
+ - aoe
  - clean failed ability use
  - targeting on items + refactor generic targeting scene
  - add items and types, refactor item chances calc
  - add exp and levels for current monster
  - better distance calculation
- - multiple levels
+ - multiple dungeon levels
  - more significant level up
  - more significant levels
  - effective level of race/class with more than just stats
  - more status effects (poison !)
  - status effect on attack (giant spider !)
- - less random stats for race
  - equip/remove items
  - manage 2handed weapons
  - magic
  - Display status effects in stats panel instead of traits
  - ... add traits
- - add weights to monster takeover
  - background color for soulbound monsters ?
- - abilities targeting for player
+ - no soul steal when soulbound
  - critical
  - sneak
  - weapon drawing and monster alertness
@@ -26,7 +30,6 @@
  - check stats < 0
  - monsters move outside fov
  - water malus
- - check error on abilities on death ???
  - doors
  - autoexplore ? :D<-<
  - logs history

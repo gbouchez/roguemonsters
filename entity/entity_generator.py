@@ -37,6 +37,7 @@ def get_random_level(level=1):
 
 
 def get_random_race_for_level(level=1):
+    level = 4
     possible_races = []
     for race in all_races:
         if race.can_have_class and race.get_level() < level \
