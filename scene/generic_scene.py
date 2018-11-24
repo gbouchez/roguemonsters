@@ -6,6 +6,7 @@ class GenericScene:
     def __init__(self):
         self.previous_scene = None
         self.render_next = True
+        self.data = None
 
     def manage_input(self, game_input):
         if game_input is None:

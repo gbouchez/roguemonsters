@@ -1,4 +1,4 @@
-from entity.battle_abilities import BattleAbilityTakeOverRandomMonster
+from entity.battle_abilities import BattleAbilitySoulSteal
 
 
 class Player:
@@ -13,5 +13,5 @@ class Player:
 
     def get_abilities(self):
         return [
-            BattleAbilityTakeOverRandomMonster
+            BattleAbilitySoulSteal
         ]

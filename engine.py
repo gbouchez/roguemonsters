@@ -21,8 +21,11 @@ class Game:
     def run(self):
         while not tcod.console_is_window_closed():
             self.render_engine.render_scene(self.current_scene)
-            game_input = self.input_manager.get_input()
-            input_return = self.current_scene.manage_input(game_input)
+            if self.current_scene.data is not None:
+                input_return = self.current_scene.manage_input(None)
+            else:
+                game_input = self.input_manager.get_input()
+                input_return = self.current_scene.manage_input(game_input)
             if input_return is None:
                 continue
             if input_return['action']:
@@ -30,6 +33,7 @@ class Game:
                     if self.current_scene.previous_scene is not None:
                         current = self.current_scene
                         self.current_scene = self.current_scene.previous_scene
+                        current.previous_scene = None
                         if input_return['action'] == 'cancel_with_action' and isinstance(self.current_scene, MapScene):
                             self.current_scene.player_took_action = True
                         self.current_scene.render_next = True

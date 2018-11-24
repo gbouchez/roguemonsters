@@ -1,31 +1,37 @@
-from random import randint
-
 import tcod
-
+from enum import Enum
+from random import randint
 from combat import attack
 from entity.status_effects import StatusEffectRage, StatusEffectSoulbound, StatusEffectFatigue
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from messages.messages import get_message
 
 
+class AbilityTargeting(Enum):
+    SELF = 1
+    LOS = 2
+
+
 class BattleAbility:
     name = ''
     hidden = False
+    targeting = AbilityTargeting.SELF
+    targeting_distance = 0
 
     @staticmethod
     def reset_turn(monster):
         pass
 
     @classmethod
-    def use_ability(cls, monster, player):
+    def use_ability(cls, monster, target):
         pass
 
     @staticmethod
-    def meet_prerequisites(monster, player):
+    def meet_prerequisites(monster, target):
         pass
 
     @staticmethod
-    def get_weight(monster, player):
+    def get_weight(monster, target):
         return 1
 
     @classmethod
@@ -33,18 +39,20 @@ class BattleAbility:
         return cls.name
 
 
-class BattleAbilityTakeOverRandomMonster(BattleAbility):
-    name = 'Monster takeover'
+class BattleAbilitySoulSteal(BattleAbility):
+    name = 'Soul steal'
+    targeting = AbilityTargeting.LOS
+    targeting_distance = 2
 
     @staticmethod
     def reset_turn(monster):
         monster.reset_turn(200)
 
     @classmethod
-    def use_ability(cls, monster, player):
-        monster.game_map.take_over_random_monster(player, in_fov=True)
+    def use_ability(cls, monster, target):
+        monster.game_map.take_over_random_monster(target, in_fov=True)
         cls.reset_turn(monster)
-        if player.entity == monster:
+        if target == monster:
             add_log_message(
                 LogMessage(
                     get_message('soulsteal.fail'),
@@ -52,17 +60,17 @@ class BattleAbilityTakeOverRandomMonster(BattleAbility):
                 )
             )
             return
-        cls.reset_turn(player.entity)
-        soulbound_turns = monster.get_soul_power() + player.entity.get_soul_power()
+        cls.reset_turn(target)
+        soulbound_turns = monster.get_soul_power() + target.get_soul_power()
         monster.status_effects.append(StatusEffectSoulbound(monster, soulbound_turns * randint(27, 33)))
-        player.entity.status_effects.append(StatusEffectSoulbound(player.entity, soulbound_turns * randint(9, 11)))
+        target.status_effects.append(StatusEffectSoulbound(target, soulbound_turns * randint(9, 11)))
 
     @staticmethod
-    def meet_prerequisites(monster, player):
+    def meet_prerequisites(monster, target):
         return False
 
     @staticmethod
-    def get_weight(monster, player):
+    def get_weight(monster, target):
         return 0
 
 
@@ -75,19 +83,19 @@ class BattleAbilityMoveToPlayer(BattleAbility):
         monster.reset_turn(monster.land_speed)
 
     @classmethod
-    def use_ability(cls, monster, player):
-        monster.move_astar(player.entity)
-        monster.target = player.entity
+    def use_ability(cls, monster, target):
+        monster.move_astar(target)
+        monster.target = target
         cls.reset_turn(monster)
 
     @staticmethod
-    def meet_prerequisites(monster, player):
-        if monster.distance_to(player.entity) >= 2:
+    def meet_prerequisites(monster, target):
+        if monster.distance_to(target) >= 2:
             return True
         return False
 
     @staticmethod
-    def get_weight(monster, player):
+    def get_weight(monster, target):
         return 1
 
 
@@ -100,19 +108,19 @@ class BattleAbilityAttackPlayer(BattleAbility):
         monster.reset_turn(monster.get_attack_speed())
 
     @classmethod
-    def use_ability(cls, monster, player):
-        monster.target = player.entity
-        attack(monster, player.entity)
+    def use_ability(cls, monster, target):
+        monster.target = target
+        attack(monster, target)
         cls.reset_turn(monster)
 
     @staticmethod
-    def meet_prerequisites(monster, player):
-        if monster.distance_to(player.entity) < 2 and player.entity.get_hp() > 0:
+    def meet_prerequisites(monster, target):
+        if monster.distance_to(target) < 2 and target.get_hp() > 0:
             return True
         return False
 
     @staticmethod
-    def get_weight(monster, player):
+    def get_weight(monster, target):
         return 1
 
 
@@ -125,7 +133,7 @@ class BattleAbilityPickItemUp(BattleAbility):
         monster.reset_turn(100)
 
     @classmethod
-    def use_ability(cls, monster, player):
+    def use_ability(cls, monster, target):
         items = monster.game_map.get_items_at(monster.x, monster.y)
         if not items:
             add_log_message(
@@ -147,14 +155,14 @@ class BattleAbilityPickItemUp(BattleAbility):
         cls.reset_turn(monster)
 
     @staticmethod
-    def meet_prerequisites(monster, player):
+    def meet_prerequisites(monster, target):
         items = monster.game_map.get_items_at(monster.x, monster.y)
         if not items:
             return False
         return True
 
     @staticmethod
-    def get_weight(monster, player):
+    def get_weight(monster, target):
         return 0.1
 
 
@@ -166,18 +174,18 @@ class BattleAbilityRage(BattleAbility):
         monster.reset_turn(150 - monster.get_constitution())
 
     @classmethod
-    def use_ability(cls, monster, player):
+    def use_ability(cls, monster, target):
         monster.status_effects.append(StatusEffectRage(monster, int(monster.get_constitution() / 2)))
         cls.reset_turn(monster)
 
     @staticmethod
-    def meet_prerequisites(monster, player):
+    def meet_prerequisites(monster, target):
         if monster.has_status(StatusEffectRage) or monster.has_status(StatusEffectFatigue):
             return False
-        if monster.distance_to(player.entity) < 2:
+        if monster.distance_to(target) < 2:
             return True
         return False
 
     @staticmethod
-    def get_weight(monster, player):
+    def get_weight(monster, target):
         return 2 - (monster.get_hp() / monster.get_max_hp()) * 2

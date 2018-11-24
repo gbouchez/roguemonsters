@@ -1,17 +1,22 @@
 import textwrap
+from enum import Enum
 
+import numpy
 import tcod
+from tcod import line_where
 
-from entity.battle_abilities import BattleAbilityMoveToPlayer, BattleAbilityAttackPlayer, BattleAbilityPickItemUp
+from entity.battle_abilities import BattleAbilityMoveToPlayer, BattleAbilityAttackPlayer, BattleAbilityPickItemUp, \
+    AbilityTargeting
 from entity.item_entity import ItemEntity
 from entity.monster_entity import MonsterEntity
 from fov import initialize_fov, recompute_fov
 from input import InputType
 from game_log import get_message_pool
 from messages.messages import get_message
+from modes import MapMode
 from scene.ability_scene import AbilityScene
 from scene.generic_scene import GenericScene
-from scene.inventory_scene import InventoryScene
+from scene.inventory_scene import InventoryScene, InventoryMode
 from variables import field_console_width, field_console_height, stat_console_height, log_console_height, \
     log_console_width, stat_console_width
 
@@ -24,6 +29,12 @@ class MapScene(GenericScene):
         self.fov_recompute = True
         self.initialize_map(game_map)
         self.player_took_action = False
+        self.mode = MapMode.FIELD
+        self.target_mode = None
+        self.target_distance = 0
+        self.target_x = None
+        self.target_y = None
+        self.target_tiles = []
         self.field_console = tcod.console_new(field_console_width, field_console_height)
         self.stat_console = tcod.console_new(stat_console_width, stat_console_height)
         self.log_console = tcod.console_new(log_console_width, log_console_height)
@@ -40,6 +51,9 @@ class MapScene(GenericScene):
     def manage_input(self, game_input):
         super_input = super().manage_input(game_input)
         if super_input is not None:
+            if super_input['action'] == 'cancel':
+                self.target_tiles = []
+                return super_input
             return super_input
 
         if game_input is None:
@@ -51,12 +65,33 @@ class MapScene(GenericScene):
             my = self.player.entity.y - int(field_console_height / 2) + my
             self.under_mouse = self.game_map.get_names_at(mx, my)
             self.render_next = True
+            if self.mode == MapMode.TARGETING and tcod.map_is_in_fov(self.game_map.fov_map, mx, my):
+                if abs(mx - self.player.entity.x) <= self.target_distance \
+                        and abs(my - self.player.entity.y) <= self.target_distance:
+                    self.target_x = mx
+                    self.target_y = my
             return None
         self.under_mouse = ''
 
         if self.player.entity.dead:
             return None
 
+        return_value = None
+
+        if self.mode == MapMode.FIELD:
+            return_value = self.manage_input_field(game_input)
+        elif self.mode == MapMode.TARGETING:
+            return_value = self.manage_input_targeting(game_input)
+
+        if self.player_took_action:
+            self.player_took_action = False
+            self.player.entity.rest()
+            self.render_next = True
+            self.manage_all_entities()
+
+        return return_value
+
+    def manage_input_field(self, game_input):
         if game_input.type == InputType.KEY:
             if game_input.value == tcod.KEY_UP \
                     or game_input.value == tcod.KEY_LEFT \
@@ -99,26 +134,71 @@ class MapScene(GenericScene):
                 self.player.entity.reset_turn(100)
                 self.player_took_action = True
             elif game_input.value == ',':
-                BattleAbilityPickItemUp.use_ability(self.player.entity, self.player)
+                BattleAbilityPickItemUp.use_ability(self.player.entity, self.player.entity)
                 self.player_took_action = True
             elif game_input.value == 'i':
-                inventory_scene = InventoryScene(self.player, self)
+                inventory_scene = InventoryScene(self.player, self, mode=InventoryMode.USE)
+                return {'action': 'change_scene', 'scene': inventory_scene}
+            elif game_input.value == 'd':
+                inventory_scene = InventoryScene(self.player, self, mode=InventoryMode.DROP)
                 return {'action': 'change_scene', 'scene': inventory_scene}
             elif game_input.value == 'a':
                 ability_scene = AbilityScene(self.player, self)
                 return {'action': 'change_scene', 'scene': ability_scene}
 
-        if self.player_took_action:
-            self.player_took_action = False
-            self.player.entity.rest()
-            self.render_next = True
-            self.manage_all_entities()
+    def manage_input_targeting(self, game_input):
+        if game_input.type == InputType.KEY:
+            if game_input.value == tcod.KEY_UP \
+                    or game_input.value == tcod.KEY_LEFT \
+                    or game_input.value == tcod.KEY_DOWN \
+                    or game_input.value == tcod.KEY_RIGHT \
+                    or game_input.value == tcod.KEY_KP1 \
+                    or game_input.value == tcod.KEY_KP2 \
+                    or game_input.value == tcod.KEY_KP3 \
+                    or game_input.value == tcod.KEY_KP4 \
+                    or game_input.value == tcod.KEY_KP6 \
+                    or game_input.value == tcod.KEY_KP7 \
+                    or game_input.value == tcod.KEY_KP8 \
+                    or game_input.value == tcod.KEY_KP9:
+                coordinates = (0, 0)
+                if game_input.value == tcod.KEY_UP or game_input.value == tcod.KEY_KP8:
+                    coordinates = (0, -1)
+                elif game_input.value == tcod.KEY_KP7:
+                    coordinates = (-1, -1)
+                elif game_input.value == tcod.KEY_LEFT or game_input.value == tcod.KEY_KP4:
+                    coordinates = (-1, 0)
+                elif game_input.value == tcod.KEY_KP1:
+                    coordinates = (-1, 1)
+                elif game_input.value == tcod.KEY_DOWN or game_input.value == tcod.KEY_KP2:
+                    coordinates = (0, 1)
+                elif game_input.value == tcod.KEY_KP3:
+                    coordinates = (1, 1)
+                elif game_input.value == tcod.KEY_RIGHT or game_input.value == tcod.KEY_KP6:
+                    coordinates = (1, 0)
+                elif game_input.value == tcod.KEY_KP9:
+                    coordinates = (1, -1)
 
+                new_x = self.target_x + coordinates[0]
+                new_y = self.target_y + coordinates[1]
+                if tcod.map_is_in_fov(self.game_map.fov_map, new_x, new_y):
+                    if abs(new_x - self.player.entity.x) <= self.target_distance \
+                            and abs(new_y - self.player.entity.y) <= self.target_distance:
+                        self.target_x = new_x
+                        self.target_y = new_y
+        self.render_next = True
         return None
 
     def render(self, console):
         if not self.render_next:
             return
+
+        self.target_tiles = []
+
+        if self.mode == MapMode.TARGETING:
+            if self.target_mode == AbilityTargeting.LOS:
+                line = line_where(self.player.entity.x, self.player.entity.y, self.target_x, self.target_y, False)
+                for _ in range(len(line[0])):
+                    self.target_tiles.append(self.game_map.field[line[0][_]][line[1][_]])
 
         dx = -(self.player.entity.x - int(field_console_width / 2))
         dy = -(self.player.entity.y - int(field_console_height / 2))
@@ -143,6 +223,32 @@ class MapScene(GenericScene):
                             self.game_map.field[x][y].background_color,
                             tcod.BKGND_SET
                         )
+                        if self.mode == MapMode.TARGETING:
+                            if abs(x - self.player.entity.x) > self.target_distance \
+                                    or abs(y - self.player.entity.y) > self.target_distance:
+                                tcod.console_set_char_background(
+                                    self.field_console,
+                                    x + dx,
+                                    y + dy,
+                                    (60, 60, 60),
+                                    tcod.BKGND_DARKEN
+                                )
+                            if self.game_map.field[x][y] in self.target_tiles:
+                                tcod.console_set_char_background(
+                                    self.field_console,
+                                    x + dx,
+                                    y + dy,
+                                    (60, 40, 40),
+                                    tcod.BKGND_ADD
+                                )
+                            if x == self.target_x and y == self.target_y:
+                                tcod.console_set_char_background(
+                                    self.field_console,
+                                    x + dx,
+                                    y + dy,
+                                    (60, 40, 20),
+                                    tcod.BKGND_ADD
+                                )
                         self.game_map.field[x][y].explored = True
                     elif self.game_map.field[x][y].explored:
                         tcod.console_set_char_background(
@@ -177,7 +283,7 @@ class MapScene(GenericScene):
                 continue
             if not tcod.map_is_in_fov(self.game_map.fov_map, entity.x, entity.y):
                 continue
-            # Don't render a dead entity if there's already one on this tile
+            # Don't render an item entity if there's already one on this tile
             if isinstance(entity, ItemEntity) and self.game_map.get_monster_at(entity.x, entity.y) is not None:
                 continue
             # Don't render a dead entity if there's already one on this tile

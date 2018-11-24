@@ -2,8 +2,10 @@ from enum import Enum
 
 import tcod
 
+from entity.battle_abilities import AbilityTargeting
 from input import InputType
 from messages.messages import get_message
+from modes import MapMode
 from render import screen_width, screen_height
 from scene.generic_scene import GenericScene
 
@@ -20,11 +22,17 @@ class AbilityScene(GenericScene):
         self.previous_scene = previous_scene
         self.mode = AbilityMode.DESCRIPTION
         self.ability = None
+        self.data = None
         self.console = tcod.console_new(screen_width, screen_height)
         tcod.console_set_default_foreground(self.console, tcod.white)
         tcod.console_set_default_background(self.console, tcod.black)
 
     def manage_input(self, game_input):
+        if self.data is not None:
+            self.previous_scene.mode = MapMode.FIELD
+            self.previous_scene.render_next = True
+            self.data = None
+
         super_input = super().manage_input(game_input)
         if super_input is not None:
             if super_input['action'] == 'cancel' and self.ability is not None:
@@ -49,8 +57,18 @@ class AbilityScene(GenericScene):
                     if self.mode == AbilityMode.DESCRIPTION:
                         self.ability = ability
                     elif self.mode == AbilityMode.USE:
-                        ability.use_ability(self.player.entity, self.player)
-                        return {'action': 'cancel_with_action'}
+                        if ability.targeting == AbilityTargeting.SELF:
+                            ability.use_ability(self.player.entity, self.player.entity)
+                            return {'action': 'cancel_with_action'}
+                        elif ability.targeting == AbilityTargeting.LOS:
+                            self.previous_scene.mode = MapMode.TARGETING
+                            self.previous_scene.previous_scene = self
+                            self.previous_scene.target_mode = ability.targeting
+                            self.previous_scene.target_distance = ability.targeting_distance
+                            self.previous_scene.target_x = self.player.entity.x
+                            self.previous_scene.target_y = self.player.entity.y
+                            self.data = {'action': None}
+                            return {'action': 'change_scene', 'scene': self.previous_scene}
 
         self.render_next = True
         return None

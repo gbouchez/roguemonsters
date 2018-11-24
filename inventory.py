@@ -13,6 +13,14 @@ class Inventory:
             item.game_map = None
         item.monster = self.monster
 
+    def drop_item(self, item):
+        item.game_map = self.monster.game_map
+        item.x = self.monster.x
+        item.y = self.monster.y
+        item.monster = None
+        item.game_map.entities.append(item)
+        self.remove_item(item, False)
+
     def equip(self, item):
         if item not in self.items:
             # todo error ? something else ?
@@ -21,11 +29,15 @@ class Inventory:
             _.equipped = False
         item.equipped = True
 
-    def remove_item(self, item):
+    def remove_item(self, item, delete=True):
+        if item.equipped:
+            item.equipped = False
         self.items.remove(item)
+        if delete:
+            del item
 
     def get_equip(self, slot):
-        equips = list(filter(lambda entity: entity.template.item_type == slot, self.items))
+        equips = list(filter(lambda entity: entity.template.item_type == slot and entity.equipped, self.items))
         if equips:
             return equips.pop()
         return None

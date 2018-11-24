@@ -1,9 +1,23 @@
 # Todo
+ - Add effect to targeting
+ - add items and types, refactor item chances calc
+ - add exp and levels for current monster
+ - better distance calculation
+ - multiple levels
+ - more significant level up
+ - more significant levels
+ - effective level of race/class with more than just stats
+ - more status effects (poison !)
+ - status effect on attack (giant spider !)
+ - less random stats for race
+ - equip/remove items
+ - manage 2handed weapons
+ - magic
  - Display status effects in stats panel instead of traits
  - ... add traits
  - add weights to monster takeover
  - background color for soulbound monsters ?
- - abilities for player
+ - abilities targeting for player
  - critical
  - sneak
  - weapon drawing and monster alertness
@@ -39,3 +53,9 @@
  - Add confirmation when quitting game... =(
  - clean messages colors...
  - prevent rage when already in rage or fatigued
+ - inventory limit
+ - end of the game
+ - beasts should not be able to pick items up ?
+ - refactor modes.py
+ - refactor manage_input for data input
+ - reverse field x and y
