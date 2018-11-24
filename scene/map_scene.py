@@ -60,17 +60,18 @@ class MapScene(GenericScene):
             return None
 
         if game_input.type == InputType.MOUSE:
-            mx, my = game_input.value.cx, game_input.value.cy
-            mx = self.player.entity.x - int(field_console_width / 2) + mx
-            my = self.player.entity.y - int(field_console_height / 2) + my
-            self.under_mouse = self.game_map.get_names_at(mx, my)
-            self.render_next = True
-            if self.mode == MapMode.TARGETING and tcod.map_is_in_fov(self.game_map.fov_map, mx, my):
-                if abs(mx - self.player.entity.x) <= self.target_distance \
-                        and abs(my - self.player.entity.y) <= self.target_distance:
-                    self.target_x = mx
-                    self.target_y = my
-            return None
+            if not game_input.value.lbutton_pressed and not game_input.value.rbutton_pressed:
+                mx, my = game_input.value.cx, game_input.value.cy
+                mx = self.player.entity.x - int(field_console_width / 2) + mx
+                my = self.player.entity.y - int(field_console_height / 2) + my
+                self.under_mouse = self.game_map.get_names_at(mx, my)
+                self.render_next = True
+                if self.mode == MapMode.TARGETING and tcod.map_is_in_fov(self.game_map.fov_map, mx, my):
+                    if abs(mx - self.player.entity.x) <= self.target_distance \
+                            and abs(my - self.player.entity.y) <= self.target_distance:
+                        self.target_x = mx
+                        self.target_y = my
+                return None
         self.under_mouse = ''
 
         if self.player.entity.dead:
@@ -147,6 +148,7 @@ class MapScene(GenericScene):
                 return {'action': 'change_scene', 'scene': ability_scene}
 
     def manage_input_targeting(self, game_input):
+        target = None
         if game_input.type == InputType.KEY:
             if game_input.value == tcod.KEY_UP \
                     or game_input.value == tcod.KEY_LEFT \
@@ -185,7 +187,17 @@ class MapScene(GenericScene):
                             and abs(new_y - self.player.entity.y) <= self.target_distance:
                         self.target_x = new_x
                         self.target_y = new_y
+            elif game_input.value == tcod.KEY_ENTER:
+                target = self.game_map.get_monster_at(self.target_x, self.target_y)
+        elif game_input.type == InputType.MOUSE:
+            if game_input.value.lbutton_pressed:
+                target = self.game_map.get_monster_at(self.target_x, self.target_y)
+
         self.render_next = True
+        if target:
+            self.previous_scene.data = {'action': 'targeted', 'target': target}
+            self.target_tiles = []
+            return {'action': 'cancel'}
         return None
 
     def render(self, console):

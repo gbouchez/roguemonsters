@@ -50,9 +50,8 @@ class BattleAbilitySoulSteal(BattleAbility):
 
     @classmethod
     def use_ability(cls, monster, target):
-        monster.game_map.take_over_random_monster(target, in_fov=True)
         cls.reset_turn(monster)
-        if target == monster:
+        if monster == target or target.has_status(StatusEffectSoulbound):
             add_log_message(
                 LogMessage(
                     get_message('soulsteal.fail'),
@@ -60,6 +59,17 @@ class BattleAbilitySoulSteal(BattleAbility):
                 )
             )
             return
+        success_roll = randint(1, monster.get_soul_power() + target.get_soul_power())
+        success = success_roll <= monster.get_soul_power()
+        if not success:
+            add_log_message(
+                LogMessage(
+                    get_message('soulsteal.fail'),
+                    tcod.white
+                )
+            )
+            return
+        monster.game_map.take_over_monster(monster.player, monster=target)
         cls.reset_turn(target)
         soulbound_turns = monster.get_soul_power() + target.get_soul_power()
         monster.status_effects.append(StatusEffectSoulbound(monster, soulbound_turns * randint(27, 33)))

@@ -1,5 +1,6 @@
 # Todo
- - Add effect to targeting
+ - clean failed ability use
+ - targeting on items + refactor generic targeting scene
  - add items and types, refactor item chances calc
  - add exp and levels for current monster
  - better distance calculation

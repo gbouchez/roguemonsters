@@ -15,7 +15,7 @@ class Game:
         self.player = Player()
         first_map = self.map_generator.generate_map(1)
         map_scene = MapScene(self.player, first_map)
-        first_map.take_over_random_monster(self.player)
+        first_map.take_over_monster(self.player)
         self.current_scene = map_scene
 
     def run(self):

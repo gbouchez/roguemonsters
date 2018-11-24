@@ -95,12 +95,13 @@ class Map:
         entity.y = y
         self.entities.append(entity)
 
-    def take_over_random_monster(self, player, in_fov=False):
-        new_monster = self.get_random_monster(in_fov=in_fov, only_alive=True)
-        if new_monster is not None:
+    def take_over_monster(self, player, in_fov=False, monster=None):
+        if monster is None:
+            monster = self.get_random_monster(in_fov=in_fov, only_alive=True)
+        if monster is not None:
             if player.entity:
                 player.entity.player = None
-            player.entity = new_monster
+            player.entity = monster
             player.entity.player = player
 
     def get_random_monster(self, in_fov=False, only_alive=True):
