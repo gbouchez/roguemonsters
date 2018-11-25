@@ -25,24 +25,24 @@ class ItemTemplate:
 
 
 class EquipmentTemplate(ItemTemplate):
-    damage = 0
     accuracy = 0
-    armor_rate = 0
-    armor_reduction = 0
+    evasion = 0
     shield_rate = 0
     shield_block = 0
+    armor_value = 0
+    damage = 0
     equipable = True
     slot = None
 
     @classmethod
     def apply_template(cls, item):
         super(EquipmentTemplate, cls).apply_template(item)
-        item.damage = cls.damage
         item.accuracy = cls.accuracy
-        item.armor_rate = cls.armor_rate
-        item.armor_reduction = cls.armor_reduction
+        item.evasion = cls.evasion
         item.shield_rate = cls.shield_rate
         item.shield_block = cls.shield_block
+        item.armor_value = cls.armor_value
+        item.damage = cls.damage
 
 
 class WeaponTemplate(EquipmentTemplate):
@@ -59,15 +59,11 @@ class WeaponTemplate(EquipmentTemplate):
 
 class ShieldTemplate(EquipmentTemplate):
     item_type = ItemType.SHIELD
-    shield_rate = 10
-    shield_block = 2
     char = '('
 
 
 class BodyTemplate(EquipmentTemplate):
     item_type = ItemType.BODY
-    armor_rate = 40
-    armor_reduction = 1
     char = '='
 
 
@@ -86,34 +82,41 @@ class PotionTemplate(ItemTemplate):
         )
 
 
+class DaggerTemplate(WeaponTemplate):
+    name = 'dagger'
+    attack_speed = 70
+    damage = 2
+    description = 'A simple dagger.'
+    weight = 4
+
+
 class ShortSwordTemplate(WeaponTemplate):
     name = 'short sword'
     attack_speed = 90
-    damage = 3
+    damage = 4
     description = 'A simple short sword.'
-    weight = 10
+    weight = 8
 
 
 class LongSwordTemplate(WeaponTemplate):
     name = 'long sword'
     attack_speed = 120
-    damage = 6
+    damage = 8
     description = 'A simple long sword.'
-    weight = 20
+    weight = 14
 
 
 class FlailTemplate(WeaponTemplate):
     name = 'flail'
     attack_speed = 150
-    damage = 9
+    damage = 12
     description = 'A simple flail.'
-    weight = 30
+    weight = 20
 
 
 class WoodenShieldTemplate(ShieldTemplate):
     name = 'wooden shield'
     description = 'A small wooden shield.'
-    shield_rate = 10
     shield_block = 2
     weight = 5
 
@@ -121,7 +124,6 @@ class WoodenShieldTemplate(ShieldTemplate):
 class BucklerTemplate(ShieldTemplate):
     name = 'buckler'
     description = 'A small buckler.'
-    shield_rate = 10
     shield_block = 3
     weight = 10
 
@@ -129,24 +131,21 @@ class BucklerTemplate(ShieldTemplate):
 class LeatherArmourTemplate(BodyTemplate):
     name = 'leather armour'
     description = 'An armour made of leather.'
-    armor_rate = 40
-    armor_reduction = 4
-    weight = 8
+    armor_value = 2
+    weight = 6
 
 
 class ScaleMailTemplate(BodyTemplate):
     name = 'scale mail'
     description = 'A scale mail.'
-    armor_rate = 45
-    armor_reduction = 6
-    weight = 12
+    armor_value = 4
+    weight = 9
 
 
 class ChainmailTemplate(BodyTemplate):
     name = 'chainmail'
     description = 'A chainmail.'
-    armor_rate = 50
-    armor_reduction = 8
+    armor_value = 8
     weight = 16
 
 
@@ -159,5 +158,5 @@ class PotionHealLightTemplate(PotionTemplate):
         heal_amount = randint(1, item.monster.get_constitution())
         heal_amount += randint(1, item.monster.get_constitution())
         heal_amount += randint(1, item.monster.get_constitution())
-        heal_amount = int(heal_amount / 3)
+        heal_amount = max(5, int(heal_amount / 3))
         item.monster.heal(heal_amount)

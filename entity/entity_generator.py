@@ -33,11 +33,10 @@ def get_random_level(level=1):
 
     random_levels_weight = list(map(lambda weight: weight / sum_weights, random_levels_weight))
 
-    return choice(random_levels, p=random_levels_weight)
+    return max(0, choice(random_levels, p=random_levels_weight))
 
 
 def get_random_race_for_level(level=1):
-    level = 4
     possible_races = []
     for race in all_races:
         if race.can_have_class and race.get_level() < level \
@@ -66,7 +65,11 @@ def generate_fighting_entity(game_map, level=1):
     monster.init_fighter()
 
     for slot in monster.equip_slots:
-        item = generate_item_entity(level= monster.get_effective_level(), item_type=slot)
+        item = generate_item_entity(
+            level=monster.get_effective_level(),
+            item_type=slot,
+            max_weight=monster.get_strength()
+        )
         monster.inventory.add_item(item)
         monster.inventory.equip(item)
 
@@ -77,10 +80,13 @@ def get_random_item_type(level):
     return choice([ItemType.POTION, ItemType.WEAPON])
 
 
-def generate_item_entity(game_map=None, level=1, item_type=None):
+def generate_item_entity(game_map=None, level=1, item_type=None, max_weight=None):
     if item_type is None:
         item_type = get_random_item_type(level)
-    templates = templates_by_type.get(item_type)
+    if max_weight is None:
+        templates = templates_by_type.get(item_type)
+    else:
+        templates = list(filter(lambda template: template.weight <= max_weight, templates_by_type.get(item_type)))
     template = choice(templates)
     item = ItemEntity(game_map=game_map)
     item.set_template(template)

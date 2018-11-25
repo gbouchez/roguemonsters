@@ -19,6 +19,7 @@ class MonsterRace:
     weight_constitution = 10
     weight_intelligence = 10
     land_speed = 100
+    natural_damage = 1
     traits_number = 3
     traits_list = []
     can_equip = True
@@ -78,6 +79,9 @@ class MonsterRace:
         if trait is not None:
             monster.add_trait(trait)
 
+    def get_natural_damage(self):
+        return self.natural_damage
+
 
 class MonsterRaceGoblin(MonsterRace):
     name = 'goblin'
@@ -132,6 +136,7 @@ class MonsterRaceGiantSpider(MonsterRace):
     weight_constitution = 10
     weight_intelligence = 3
     land_speed = 70
+    natural_damage = 3
     can_equip = False
     traits_list = [
         TraitFastWalker,
@@ -153,6 +158,7 @@ class MonsterRaceGiantRat(MonsterRace):
     weight_constitution = 10
     weight_intelligence = 3
     land_speed = 90
+    natural_damage = 2
     can_equip = False
     traits_list = [
         TraitFastWalker,
@@ -160,11 +166,11 @@ class MonsterRaceGiantRat(MonsterRace):
 
 
 all_races = [
-    # MonsterRaceGoblin(),
-    # MonsterRaceKobold(),
-    # MonsterRaceOrc(),
+    MonsterRaceGoblin(),
+    MonsterRaceKobold(),
+    MonsterRaceOrc(),
     MonsterRaceHuman(),
 
     MonsterRaceGiantSpider(),
-    # MonsterRaceGiantRat(),
+    MonsterRaceGiantRat(),
 ]

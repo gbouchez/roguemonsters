@@ -25,7 +25,6 @@
  - sneak
  - weapon drawing and monster alertness
  - skills
- - check stats < 0
  - monsters move outside fov
  - water malus
  - doors

@@ -1,5 +1,3 @@
-import math
-from enum import Enum
 from random import randint
 
 import tcod
@@ -12,9 +10,8 @@ def attack(attacker, target):
     message_key_prefix = get_monster_message_prefix(attacker)
 
     roll = make_attack_roll(attacker)
-    dodge = target.get_dodge_components()
-    dodge_value = sum(dodge.values())
-    roll -= dodge_value
+    evasion = target.get_evasion()
+    roll -= evasion
     if roll <= 0:
         add_log_message(
             LogMessage(
@@ -26,12 +23,10 @@ def attack(attacker, target):
         return
 
     damage = make_damage_roll(attacker)
-
-    shield = target.get_shield_components()
-    shield_value = sum(shield.values())
-    if roll - shield_value <= 0:
-        shield_block = randint(0, target.get_shield_block())
-        if damage <= shield_block:
+    if damage <= target.get_shield_block():
+        shield = target.get_shield_rate()
+        roll -= shield
+        if roll <= 0:
             add_log_message(
                 LogMessage(
                     get_message(message_key_prefix + "miss_block")
@@ -41,31 +36,19 @@ def attack(attacker, target):
             )
             return
 
-    armor = target.get_armor_components()
-    armor_value = sum(armor.values())
-    roll -= armor_value
-    if roll <= 0:
-        armor_reduction = randint(0, target.get_armor_reduction())
-        damage -= armor_reduction
-        if damage <= 0:
-            add_log_message(
-                LogMessage(
-                    get_message(message_key_prefix + "miss_armor")
-                    .format(str.capitalize(attacker.get_name()), target.get_name()),
-                    tcod.grey
-                )
-            )
-            return
-
+    armor = target.get_armor_value()
+    if armor >= 1:
+        damage -= randint(1, armor)
+    if damage <= 0:
         add_log_message(
             LogMessage(
-                get_message(message_key_prefix + "hit_armor")
-                .format(str.capitalize(attacker.get_name()), target.get_name(), damage),
-                tcod.white
+                get_message(message_key_prefix + "miss_armor")
+                .format(str.capitalize(attacker.get_name()), target.get_name()),
+                tcod.grey
             )
         )
-        target.take_damage(damage)
         return
+
     add_log_message(
         LogMessage(
             get_message(message_key_prefix + "hit")

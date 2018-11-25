@@ -73,83 +73,124 @@ class MonsterEntity(GenericEntity):
             self.hp = self.get_max_hp()
 
     def get_max_hp(self):
-        return max(1, self.max_hp + self.get_constitution() * 2)
+        return max(1, self.max_hp + int(10 * pow(1.1, self.get_constitution())))
 
     def get_hp(self):
         self.check_max_hp()
         return self.hp
 
+    def get_equipment_accuracy_bonus(self):
+        bonus = 0
+        for slot in self.equip_slots:
+            equip = self.inventory.get_equip(slot)
+            if equip:
+                bonus += equip.accuracy
+        return bonus
+
+    def get_equipment_evasion_bonus(self):
+        bonus = 0
+        for slot in self.equip_slots:
+            equip = self.inventory.get_equip(slot)
+            if equip:
+                bonus += equip.evasion
+        return bonus
+
+    def get_equipment_shield_rate_bonus(self):
+        bonus = 0
+        for slot in self.equip_slots:
+            equip = self.inventory.get_equip(slot)
+            if equip:
+                bonus += equip.shield_rate
+        return bonus
+
+    def get_equipment_shield_block_bonus(self):
+        bonus = 0
+        for slot in self.equip_slots:
+            equip = self.inventory.get_equip(slot)
+            if equip:
+                bonus += equip.shield_block
+        return bonus
+
+    def get_equipment_armor_bonus(self):
+        bonus = 0
+        for slot in self.equip_slots:
+            equip = self.inventory.get_equip(slot)
+            if equip:
+                bonus += equip.armor_value
+        return bonus
+
     def get_accuracy(self):
         accuracy = 100
+        accuracy -= self.get_equipment_weight_malus()
+        weapon_weight_malus = 0
         weapon = self.inventory.get_equip(ItemType.WEAPON)
-        if not weapon:
-            return accuracy - 50 + self.get_dexterity()
-        weight_malus = weapon.template.weight - self.get_strength() * 2
-        if weight_malus == 0:
-            accuracy += self.get_dexterity()
-        else:
-            accuracy - weight_malus
-        accuracy += weapon.accuracy
-        return accuracy
+        if weapon:
+            weapon_weight_malus = max(0, weapon.template.weight - self.get_strength())
+        accuracy += max(0, self.get_dexterity() - weapon_weight_malus)
+        accuracy += self.get_equipment_accuracy_bonus()
+        return max(0, accuracy)
 
     def get_damage(self):
         weapon = self.inventory.get_equip(ItemType.WEAPON)
         if not weapon:
-            return max(1, 1 + self.get_strength() // 5)
+            return self.monster_race.get_natural_damage() * 2
         damage = weapon.damage
-        weight_malus = max(0, (weapon.template.weight - self.get_strength()) // 3)
-        damage -= weight_malus
+        if weapon.template.weight == 0:
+            return damage * 2
+        if self.get_strength() < weapon.template.weight:
+            damage /= 2
+            damage += damage * self.get_strength() / weapon.template.weight
+        else:
+            damage += damage * min(1, (self.get_strength() - weapon.template.weight) / weapon.template.weight)
 
-        return max(1, damage)
+        return max(1, int(damage))
 
-    def get_dodge_components(self):
-        components = {'dexterity': self.get_dexterity(), 'malus': self.get_equipment_malus()}
-        return components
+    def get_evasion(self):
+        evasion = 15
+        evasion -= self.get_equipment_weight_malus()
+        evasion += self.get_dexterity()
+        evasion += self.get_equipment_evasion_bonus()
+        return max(0, evasion)
 
-    def get_shield_components(self):
-        components = {}
+    def get_shield_rate(self):
         shield = self.inventory.get_equip(ItemType.SHIELD)
-        if shield:
-            components['shield'] = shield.shield_rate
-        components['malus'] = self.get_equipment_malus()
-        return components
+        if not shield:
+            return 0
+        rate = 10
+        rate -= self.get_equipment_weight_malus()
+        shield_weight_malus = max(0, shield.template.weight - self.get_strength())
+        rate += max(0, self.get_dexterity() - shield_weight_malus)
+        rate += self.get_equipment_shield_rate_bonus()
+        return max(0, rate)
 
     def get_shield_block(self):
         block = 0
-        shield = self.inventory.get_equip(ItemType.SHIELD)
-        if shield:
-            block += shield.shield_block
+        block += self.get_equipment_shield_block_bonus()
         return block
 
-    def get_armor_components(self):
-        components = {}
-        body = self.inventory.get_equip(ItemType.BODY)
-        if body:
-            components['body'] = body.armor_rate
-        components['malus'] = self.get_equipment_malus()
-        return components
-
-    def get_armor_reduction(self):
-        reduction = 0
-        body = self.inventory.get_equip(ItemType.BODY)
-        if body:
-            reduction += body.armor_reduction
-        return reduction
+    def get_armor_value(self):
+        value = 0
+        value += self.get_equipment_armor_bonus()
+        return value
 
     def get_attack_speed(self):
         speed = self.attack_speed
         weapon = self.inventory.get_equip(ItemType.WEAPON)
         if weapon:
             speed = weapon.attack_speed
-        speed = max(25, speed - self.get_equipment_malus())
+        speed = max(25, speed - self.get_equipment_weight_malus())
         return speed
 
-    def get_equipment_malus(self):
+    def get_equipment_weight_malus(self):
         malus = 0
         for slot in self.equip_slots:
             equip = self.inventory.get_equip(slot)
             if equip:
-                malus += max(0, equip.template.weight - self.get_strength())
+                stat_diff = equip.template.weight - self.get_strength()
+                multiplier = 1
+                while stat_diff > 0:
+                    malus += min(4, stat_diff) * multiplier
+                    stat_diff -= 4
         return malus
 
     def get_effective_level(self):

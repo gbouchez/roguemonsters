@@ -1,5 +1,5 @@
 from entity.item_template import ShortSwordTemplate, PotionHealLightTemplate, LongSwordTemplate, FlailTemplate, \
-    LeatherArmourTemplate, BucklerTemplate, ScaleMailTemplate, ChainmailTemplate, WoodenShieldTemplate
+    LeatherArmourTemplate, BucklerTemplate, ScaleMailTemplate, ChainmailTemplate, WoodenShieldTemplate, DaggerTemplate
 from entity.item_entity import ItemType
 
 templates_by_type = {
@@ -7,6 +7,7 @@ templates_by_type = {
         PotionHealLightTemplate,
     ],
     ItemType.WEAPON: [
+        DaggerTemplate,
         ShortSwordTemplate,
         LongSwordTemplate,
         FlailTemplate,
