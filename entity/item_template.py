@@ -26,11 +26,12 @@ class ItemTemplate:
 
 class EquipmentTemplate(ItemTemplate):
     accuracy = 0
+    damage = 0
     evasion = 0
     shield_rate = 0
     shield_block = 0
     armor_value = 0
-    damage = 0
+    attack_speed = 0
     equipable = True
     slot = None
 
@@ -43,10 +44,11 @@ class EquipmentTemplate(ItemTemplate):
         item.shield_block = cls.shield_block
         item.armor_value = cls.armor_value
         item.damage = cls.damage
+        item.attack_speed = cls.attack_speed
 
 
 class WeaponTemplate(EquipmentTemplate):
-    attack_speed = 100
+    attack_speed = 0
     damage = 1
     item_type = ItemType.WEAPON
     char = ')'

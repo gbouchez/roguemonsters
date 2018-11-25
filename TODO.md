@@ -1,5 +1,4 @@
 # Todo
- - add natural weapon/armor for beasts
  - spider web stack to entanglement
  - blocked LOS targeting (spider web)
  - aoe
@@ -60,3 +59,13 @@
  - refactor modes.py
  - refactor manage_input for data input
  - reverse field x and y
+ - bows and ranged attacks
+ - ammunitions
+ - enchantments
+ - magic resistance and associated races
+ - tengu flight
+ - class traits
+ - monster and equipments sizes
+ - size malus/bonus
+ - equipment craft (orcish, elven, etc)
+ - race natural attack speed

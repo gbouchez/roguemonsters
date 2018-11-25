@@ -6,7 +6,7 @@ from entity.battle_trait import get_random_possible_trait
 
 class MonsterClass:
     name = ''
-    stat_per_level = 5
+    stat_per_level = 4
     weight_strength = 10
     weight_dexterity = 10
     weight_constitution = 10
@@ -34,7 +34,8 @@ class MonsterClass:
                 monster.intelligence += 1
 
     def gain_trait(self, monster, level):
-        trait = get_random_possible_trait(monster)
+        # todo gain class traits
+        trait = None
 
         if trait is not None:
             monster.add_trait(trait)

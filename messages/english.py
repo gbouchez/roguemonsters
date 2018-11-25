@@ -47,5 +47,6 @@ messages = {
     'equip.slot.4': 'Body',
     'equip.slot.4.truncate': 'Body',
     'equip.no_equipment': 'None',
-    'soulsteal.fail': 'You fail to take another body.'
+    'soulsteal.fail': 'You fail to take another body.',
+    'quit_game.confirm': 'Do you really want to quit the game ? (Y/N)'
 }

@@ -1,7 +1,9 @@
 import tcod
 
+from game_log import add_log_message, LogMessage
 from input import InputManager
 from map_generator import MapGenerator
+from messages.messages import get_message
 from player import Player
 from render import RenderEngine
 from scene.map_scene import MapScene
@@ -29,6 +31,8 @@ class Game:
             if input_return is None:
                 continue
             if input_return['action']:
+                if input_return['action'] == 'confirm':
+                    input_return = self.current_scene.need_confirm
                 if input_return['action'] == 'cancel' or input_return['action'] == 'cancel_with_action':
                     if self.current_scene.previous_scene is not None:
                         current = self.current_scene
@@ -39,7 +43,16 @@ class Game:
                         self.current_scene.render_next = True
                         del current
                     else:
-                        return True
+                        if self.current_scene.need_confirm is not None:
+                            return True
+                        self.current_scene.need_confirm = input_return
+                        add_log_message(
+                            LogMessage(
+                                get_message("quit_game.confirm"),
+                                tcod.light_cyan
+                            )
+                        )
+                        self.current_scene.render_next = True
                 elif input_return['action'] == 'change_scene':
                     self.current_scene = input_return['scene']
                     self.current_scene.render_next = True

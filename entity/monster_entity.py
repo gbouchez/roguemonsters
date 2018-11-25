@@ -40,6 +40,13 @@ class MonsterEntity(GenericEntity):
             'constitution': {},
             'intelligence': {},
             'land_speed': {},
+            'accuracy': {},
+            'damage': {},
+            'evasion': {},
+            'shield_rate': {},
+            'shield_block': {},
+            'armor': {},
+            'attack_speed': {},
         }
         self.inventory = Inventory(self)
         self.equip_slots = []
@@ -87,6 +94,14 @@ class MonsterEntity(GenericEntity):
                 bonus += equip.accuracy
         return bonus
 
+    def get_equipment_damage_bonus(self):
+        bonus = 0
+        for slot in self.equip_slots:
+            equip = self.inventory.get_equip(slot)
+            if equip:
+                bonus += equip.damage
+        return bonus
+
     def get_equipment_evasion_bonus(self):
         bonus = 0
         for slot in self.equip_slots:
@@ -117,6 +132,15 @@ class MonsterEntity(GenericEntity):
             equip = self.inventory.get_equip(slot)
             if equip:
                 bonus += equip.armor_value
+        bonus += self.monster_race.get_natural_armor()
+        return bonus
+
+    def get_equipment_attack_speed_bonus(self):
+        bonus = 0
+        for slot in self.equip_slots:
+            equip = self.inventory.get_equip(slot)
+            if equip:
+                bonus += equip.attack_speed
         return bonus
 
     def get_accuracy(self):
@@ -128,6 +152,7 @@ class MonsterEntity(GenericEntity):
             weapon_weight_malus = max(0, weapon.template.weight - self.get_strength())
         accuracy += max(0, self.get_dexterity() - weapon_weight_malus)
         accuracy += self.get_equipment_accuracy_bonus()
+        accuracy += self.get_total_bonus('accuracy')
         return max(0, accuracy)
 
     def get_damage(self):
@@ -135,13 +160,16 @@ class MonsterEntity(GenericEntity):
         if not weapon:
             return self.monster_race.get_natural_damage() * 2
         damage = weapon.damage
-        if weapon.template.weight == 0:
-            return damage * 2
-        if self.get_strength() < weapon.template.weight:
-            damage /= 2
-            damage += damage * self.get_strength() / weapon.template.weight
+        if weapon.template.weight != 0:
+            if self.get_strength() < weapon.template.weight:
+                damage /= 2
+                damage += damage * self.get_strength() / weapon.template.weight
+            else:
+                damage += damage * min(1, (self.get_strength() - weapon.template.weight) / weapon.template.weight)
         else:
-            damage += damage * min(1, (self.get_strength() - weapon.template.weight) / weapon.template.weight)
+            damage *= 2
+        damage += self.get_equipment_damage_bonus() - weapon.damage
+        damage += self.get_total_bonus('damage')
 
         return max(1, int(damage))
 
@@ -150,6 +178,7 @@ class MonsterEntity(GenericEntity):
         evasion -= self.get_equipment_weight_malus()
         evasion += self.get_dexterity()
         evasion += self.get_equipment_evasion_bonus()
+        evasion += self.get_total_bonus('evasion')
         return max(0, evasion)
 
     def get_shield_rate(self):
@@ -161,24 +190,29 @@ class MonsterEntity(GenericEntity):
         shield_weight_malus = max(0, shield.template.weight - self.get_strength())
         rate += max(0, self.get_dexterity() - shield_weight_malus)
         rate += self.get_equipment_shield_rate_bonus()
+        rate += self.get_total_bonus('shield_rate')
         return max(0, rate)
 
     def get_shield_block(self):
         block = 0
         block += self.get_equipment_shield_block_bonus()
+        block += self.get_total_bonus('shield_block')
         return block
 
     def get_armor_value(self):
         value = 0
         value += self.get_equipment_armor_bonus()
+        value += self.get_total_bonus('armor')
         return value
 
     def get_attack_speed(self):
         speed = self.attack_speed
         weapon = self.inventory.get_equip(ItemType.WEAPON)
         if weapon:
-            speed = weapon.attack_speed
-        speed = max(25, speed - self.get_equipment_weight_malus())
+            speed += weapon.attack_speed
+        speed = max(25, speed + self.get_equipment_weight_malus())
+        speed += self.get_equipment_attack_speed_bonus()
+        speed += self.get_total_bonus('attack_speed')
         return speed
 
     def get_equipment_weight_malus(self):

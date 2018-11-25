@@ -192,12 +192,12 @@ class BattleAbilityRage(BattleAbility):
     def meet_prerequisites(monster, target):
         if monster.has_status(StatusEffectRage) or monster.has_status(StatusEffectFatigue):
             return False
-        if monster.distance_to(target) < 2:
-            return True
-        return False
+        return True
 
     @staticmethod
     def get_weight(monster, target):
+        if monster.distance_to(target) >= 2:
+            return 0
         return 2 - (monster.get_hp() / monster.get_max_hp()) * 2
 
 
@@ -217,12 +217,12 @@ class BattleAbilitySpiderWeb(BattleAbility):
 
     @staticmethod
     def meet_prerequisites(monster, target):
-        if target.has_status(StatusEffectSpiderWeb):
-            return False
-        if monster.distance_to(target) < 5:
-            return True
-        return False
+        return True
 
     @staticmethod
     def get_weight(monster, target):
+        if monster.distance_to(target) >= 5:
+            return 0
+        if target.has_status(StatusEffectSpiderWeb):
+            return 0
         return 2

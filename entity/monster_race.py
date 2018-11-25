@@ -3,7 +3,7 @@ from random import randint
 from numpy.random.mtrand import choice
 
 from entity.battle_abilities import BattleAbilityMoveToPlayer, BattleAbilityAttackPlayer, BattleAbilitySpiderWeb
-from entity.battle_trait import get_random_possible_trait, TraitFastWalker
+from entity.battle_trait import get_random_possible_trait, TraitFastWalker, TraitGoodEyesight
 from entity.item_entity import ItemType
 
 
@@ -14,14 +14,19 @@ class MonsterRace:
     char = '?'
     color = 255, 255, 255
     stat_per_level = 4
-    weight_strength = 10
-    weight_dexterity = 10
-    weight_constitution = 10
-    weight_intelligence = 10
+    weight_strength = 12
+    weight_dexterity = 12
+    weight_constitution = 12
+    weight_intelligence = 12
     land_speed = 100
     natural_damage = 1
+    natural_armor = 0
     traits_number = 3
-    traits_list = []
+    traits_list = [
+        TraitFastWalker,
+        TraitGoodEyesight,
+    ]
+    custom_traits_list = []
     can_equip = True
     equip_slots = [
         ItemType.WEAPON,
@@ -31,10 +36,17 @@ class MonsterRace:
 
     def get_level(self):
         total_stats = self.weight_strength + self.weight_dexterity + self.weight_constitution + self.weight_intelligence
-        total_stats -= 40
+        total_stats -= 48
         total_stats /= 4
         total_stats += ((-self.land_speed) + 100) / 10
         total_stats += (self.traits_number - 3) * 5
+
+        if not self.can_equip:
+            total_stats -= 3
+            total_stats += self.natural_damage // 2
+        else:
+            total_stats += len(self.equip_slots) - 3
+        total_stats += self.natural_armor
 
         return 1 + int(total_stats)
 
@@ -74,13 +86,19 @@ class MonsterRace:
         ]
 
     def gain_trait(self, monster):
-        trait = get_random_possible_trait(monster, self.traits_list)
+        trait = get_random_possible_trait(monster, self.get_possible_traits())
 
         if trait is not None:
             monster.add_trait(trait)
 
     def get_natural_damage(self):
         return self.natural_damage
+
+    def get_natural_armor(self):
+        return self.natural_armor
+
+    def get_possible_traits(self):
+        return self.traits_list + self.custom_traits_list
 
 
 class MonsterRaceGoblin(MonsterRace):
@@ -89,11 +107,18 @@ class MonsterRaceGoblin(MonsterRace):
     color = 160, 160, 30
     weight_strength = 10
     weight_dexterity = 8
-    weight_constitution = 8
-    weight_intelligence = 5
-    traits_list = [
-        TraitFastWalker,
-    ]
+    weight_constitution = 10
+    weight_intelligence = 6
+
+
+class MonsterRaceHobgoblin(MonsterRace):
+    name = 'hobgoblin'
+    char = 'g'
+    color = 180, 140, 30
+    weight_strength = 14
+    weight_dexterity = 12
+    weight_constitution = 12
+    weight_intelligence = 8
 
 
 class MonsterRaceOrc(MonsterRace):
@@ -102,9 +127,31 @@ class MonsterRaceOrc(MonsterRace):
     char = 'o'
     color = 120, 160, 40
     weight_strength = 15
-    weight_dexterity = 11
+    weight_dexterity = 10
     weight_constitution = 15
-    weight_intelligence = 9
+    weight_intelligence = 7
+
+
+class MonsterRaceOgre(MonsterRace):
+    name = 'ogre'
+    name_article = 'an'
+    char = 'O'
+    color = 160, 80, 40
+    weight_strength = 24
+    weight_dexterity = 6
+    weight_constitution = 20
+    weight_intelligence = 4
+
+
+class MonsterRaceHalfOrc(MonsterRace):
+    name = 'half-orc'
+    name_article = 'a'
+    char = 'o'
+    color = 135, 155, 95
+    weight_strength = 13
+    weight_dexterity = 11
+    weight_constitution = 13
+    weight_intelligence = 10
 
 
 class MonsterRaceKobold(MonsterRace):
@@ -114,9 +161,34 @@ class MonsterRaceKobold(MonsterRace):
     weight_strength = 8
     weight_dexterity = 15
     weight_constitution = 6
-    weight_intelligence = 11
-    traits_list = [
-        TraitFastWalker,
+    weight_intelligence = 14
+
+
+class MonsterRaceTengu(MonsterRace):
+    name = 'tengu'
+    char = 't'
+    color = 0, 160, 160
+    weight_strength = 10
+    weight_dexterity = 15
+    weight_constitution = 10
+    weight_intelligence = 15
+    land_speed = 120
+    # todo flight speed
+
+
+class MonsterRaceCentaur(MonsterRace):
+    name = 'centaur'
+    char = 'c'
+    color = 160, 160, 20
+    weight_strength = 14
+    weight_dexterity = 16
+    weight_constitution = 14
+    weight_intelligence = 16
+    land_speed = 80
+    equip_slots = [
+        ItemType.WEAPON,
+        ItemType.SHIELD,
+        ItemType.BODY,
     ]
 
 
@@ -131,16 +203,14 @@ class MonsterRaceGiantSpider(MonsterRace):
     char = 's'
     color = 160, 160, 160
     can_have_class = False
-    weight_strength = 13
-    weight_dexterity = 17
+    weight_strength = 14
+    weight_dexterity = 18
     weight_constitution = 10
     weight_intelligence = 3
-    land_speed = 70
+    land_speed = 80
     natural_damage = 3
+    natural_armor = 2
     can_equip = False
-    traits_list = [
-        TraitFastWalker,
-    ]
 
     def get_abilities(self):
         return super(MonsterRaceGiantSpider, self).get_abilities() + [
@@ -155,21 +225,24 @@ class MonsterRaceGiantRat(MonsterRace):
     can_have_class = False
     weight_strength = 6
     weight_dexterity = 10
-    weight_constitution = 10
-    weight_intelligence = 3
-    land_speed = 90
-    natural_damage = 2
+    weight_constitution = 6
+    weight_intelligence = 6
+    land_speed = 60
+    natural_damage = 1
+    natural_armor = 1
     can_equip = False
-    traits_list = [
-        TraitFastWalker,
-    ]
 
 
 all_races = [
     MonsterRaceGoblin(),
+    MonsterRaceHobgoblin(),
     MonsterRaceKobold(),
+    MonsterRaceOgre(),
     MonsterRaceOrc(),
+    MonsterRaceHalfOrc(),
     MonsterRaceHuman(),
+    MonsterRaceTengu(),
+    MonsterRaceCentaur(),
 
     MonsterRaceGiantSpider(),
     MonsterRaceGiantRat(),

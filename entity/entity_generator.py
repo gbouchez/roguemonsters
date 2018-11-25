@@ -33,7 +33,7 @@ def get_random_level(level=1):
 
     random_levels_weight = list(map(lambda weight: weight / sum_weights, random_levels_weight))
 
-    return max(0, choice(random_levels, p=random_levels_weight))
+    return choice(random_levels, p=random_levels_weight)
 
 
 def get_random_race_for_level(level=1):

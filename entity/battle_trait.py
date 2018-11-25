@@ -18,15 +18,28 @@ class TraitFastWalker(Trait):
 
     @staticmethod
     def apply_effect(monster):
-        monster.land_speed -= 4
+        monster.add_stat_bonus('land_speed', 'trait_fast_walker', -10)
 
     @staticmethod
     def meet_prerequisites(monster):
-        return monster.land_speed <= 200
+        return True
+
+
+class TraitGoodEyesight(Trait):
+    name = 'Good eyesight'
+
+    @staticmethod
+    def apply_effect(monster):
+        monster.add_stat_bonus('accuracy', 'trait_good_eyesight', 4)
+
+    @staticmethod
+    def meet_prerequisites(monster):
+        return True
 
 
 all_traits = [
     TraitFastWalker,
+    TraitGoodEyesight,
 ]
 
 
