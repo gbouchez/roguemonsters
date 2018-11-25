@@ -51,7 +51,7 @@ class BattleAbilitySoulSteal(BattleAbility):
     @classmethod
     def use_ability(cls, monster, target):
         cls.reset_turn(monster)
-        if monster == target or target.has_status(StatusEffectSoulbound):
+        if monster == target or target.get_status(StatusEffectSoulbound) is not None:
             add_log_message(
                 LogMessage(
                     get_message('soulsteal.fail'),
@@ -72,8 +72,8 @@ class BattleAbilitySoulSteal(BattleAbility):
         monster.game_map.take_over_monster(monster.player, monster=target)
         cls.reset_turn(target)
         soulbound_turns = monster.get_soul_power() + target.get_soul_power()
-        monster.status_effects.append(StatusEffectSoulbound(monster, soulbound_turns * randint(27, 33)))
-        target.status_effects.append(StatusEffectSoulbound(target, soulbound_turns * randint(9, 11)))
+        monster.add_status(StatusEffectSoulbound, soulbound_turns * randint(27, 33))
+        target.add_status(StatusEffectSoulbound, soulbound_turns * randint(9, 11))
 
     @staticmethod
     def meet_prerequisites(monster, target):
@@ -185,12 +185,12 @@ class BattleAbilityRage(BattleAbility):
 
     @classmethod
     def use_ability(cls, monster, target):
-        monster.status_effects.append(StatusEffectRage(monster, int(monster.get_constitution() / 2)))
+        monster.add_status(StatusEffectRage, int(monster.get_constitution() / 2))
         cls.reset_turn(monster)
 
     @staticmethod
     def meet_prerequisites(monster, target):
-        if monster.has_status(StatusEffectRage) or monster.has_status(StatusEffectFatigue):
+        if monster.get_status(StatusEffectRage) is not None or monster.get_status(StatusEffectFatigue) is not None:
             return False
         return True
 
@@ -212,7 +212,7 @@ class BattleAbilitySpiderWeb(BattleAbility):
 
     @classmethod
     def use_ability(cls, monster, target):
-        target.status_effects.append(StatusEffectSpiderWeb(target, monster.get_constitution() * 3))
+        target.add_status(StatusEffectSpiderWeb, monster.get_constitution() * 3)
         cls.reset_turn(monster)
 
     @staticmethod
@@ -223,6 +223,4 @@ class BattleAbilitySpiderWeb(BattleAbility):
     def get_weight(monster, target):
         if monster.distance_to(target) >= 5:
             return 0
-        if target.has_status(StatusEffectSpiderWeb):
-            return 0
-        return 2
+        return monster.get_land_speed() / target.get_land_speed()

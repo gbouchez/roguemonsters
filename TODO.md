@@ -1,5 +1,5 @@
 # Todo
- - spider web stack to entanglement
+ - diminishes natural regen based on constitution
  - blocked LOS targeting (spider web)
  - aoe
  - clean failed ability use
@@ -69,3 +69,5 @@
  - size malus/bonus
  - equipment craft (orcish, elven, etc)
  - race natural attack speed
+ - add effect origin to status effects
+ - "breath" type reload for spider webs

@@ -111,7 +111,7 @@ class Map:
                 isinstance(entity, MonsterEntity)
                 and (not in_fov or tcod.map_is_in_fov(self.fov_map, entity.x, entity.y))
                 and (not only_alive or not entity.dead)
-                and not entity.has_status(StatusEffectSoulbound),
+                and entity.get_status(StatusEffectSoulbound) is None,
                 self.entities
             )
         )

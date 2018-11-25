@@ -267,11 +267,18 @@ class MonsterEntity(GenericEntity):
                 status.remove_effect()
                 self.status_effects.remove(status)
 
-    def has_status(self, search_status):
+    def get_status(self, search_status):
         for status in self.status_effects:
             if isinstance(status, search_status):
-                return True
-        return False
+                return status
+        return None
+
+    def add_status(self, status_type, turns):
+        status = self.get_status(status_type)
+        if status is not None:
+            status.stack(self, turns)
+        else:
+            self.status_effects.append(status_type(self, turns))
 
     def heal(self, amount, with_message=True):
         self.hp += amount

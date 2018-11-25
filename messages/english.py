@@ -21,6 +21,8 @@ messages = {
     'you.spider_web.begin': '{0} are entangled in a spider web.',
     'monster.spider_web.end': '{0} frees itself from the web.',
     'you.spider_web.end': 'You free yourself from the web.',
+    'monster.spider_web.stack': '{0} is covered in more web.',
+    'you.spider_web.stack': 'You are covered in more web.',
     'monster.pickup_item': '{0}\'s grabs {1} on the ground.',
     'you.pickup_item': '{0} grab {1} on the ground.',
     'monster.pickup_item.none': 'There is nothing here.',
