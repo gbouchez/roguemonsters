@@ -1,5 +1,4 @@
 # Todo
- - fix black screen on escape targeting (regression ?)
  - add natural weapon/armor for beasts
  - spider web stack to entanglement
  - blocked LOS targeting (spider web)

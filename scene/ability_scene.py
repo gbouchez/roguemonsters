@@ -34,6 +34,7 @@ class AbilityScene(GenericScene):
             if self.data.get('action') == 'targeted':
                 self.ability.use_ability(self.player.entity, self.data.get('target'))
                 return {'action': 'cancel_with_action'}
+            self.ability = None
             self.data = None
 
         super_input = super().manage_input(game_input)
@@ -82,7 +83,7 @@ class AbilityScene(GenericScene):
             return
         tcod.console_clear(self.console)
 
-        if self.ability is None:
+        if self.mode != AbilityMode.DESCRIPTION or self.ability is None:
             self.render_list()
 
         tcod.console_blit(self.console, 0, 0, screen_width, screen_height, 0, 0, 0)
