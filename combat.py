@@ -1,3 +1,4 @@
+from math import floor
 from random import randint
 
 import tcod
@@ -22,7 +23,7 @@ def attack(attacker, target):
         )
         return
 
-    damage = make_damage_roll(attacker)
+    damage = make_damage_roll(attacker, target)
     if damage <= target.get_shield_block():
         shield = target.get_shield_rate()
         roll -= shield
@@ -64,8 +65,18 @@ def make_attack_roll(monster):
     return roll
 
 
-def make_damage_roll(monster):
-    roll = randint(1, monster.get_damage())
-    roll += randint(1, monster.get_damage())
-    roll += randint(1, monster.get_damage())
+def make_damage_roll(monster, target):
+    if target.get_armor_value() > 0:
+        damage_multiplier = min(3, monster.get_damage() / target.get_armor_value())
+    else:
+        damage_multiplier = 3
+    max_damage = max(0, floor(
+        (monster.get_strength() * monster.get_strength() / target.get_constitution())
+        * damage_multiplier
+    ))
+    if max_damage == 0:
+        return 0
+    roll = randint(1, max_damage)
+    roll += randint(1, max_damage)
+    roll += randint(1, max_damage)
     return int(roll / 3)

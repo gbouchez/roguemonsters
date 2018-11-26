@@ -48,15 +48,8 @@ class EquipmentTemplate(ItemTemplate):
 
 
 class WeaponTemplate(EquipmentTemplate):
-    attack_speed = 0
-    damage = 1
     item_type = ItemType.WEAPON
     char = ')'
-
-    @classmethod
-    def apply_template(cls, item):
-        super(WeaponTemplate, cls).apply_template(item)
-        item.attack_speed = cls.attack_speed
 
 
 class ShieldTemplate(EquipmentTemplate):
@@ -103,7 +96,7 @@ class ShortSwordTemplate(WeaponTemplate):
 class LongSwordTemplate(WeaponTemplate):
     name = 'long sword'
     attack_speed = 120
-    damage = 8
+    damage = 7
     description = 'A simple long sword.'
     weight = 14
 
@@ -111,7 +104,7 @@ class LongSwordTemplate(WeaponTemplate):
 class FlailTemplate(WeaponTemplate):
     name = 'flail'
     attack_speed = 150
-    damage = 12
+    damage = 15
     description = 'A simple flail.'
     weight = 20
 
@@ -119,7 +112,7 @@ class FlailTemplate(WeaponTemplate):
 class WoodenShieldTemplate(ShieldTemplate):
     name = 'wooden shield'
     description = 'A small wooden shield.'
-    shield_block = 2
+    shield_block = 10
     weight = 5
 
 
@@ -133,22 +126,22 @@ class BucklerTemplate(ShieldTemplate):
 class LeatherArmourTemplate(BodyTemplate):
     name = 'leather armour'
     description = 'An armour made of leather.'
-    armor_value = 2
+    armor_value = 3
     weight = 6
 
 
 class ScaleMailTemplate(BodyTemplate):
     name = 'scale mail'
     description = 'A scale mail.'
-    armor_value = 4
-    weight = 9
+    armor_value = 6
+    weight = 12
 
 
 class ChainmailTemplate(BodyTemplate):
     name = 'chainmail'
     description = 'A chainmail.'
-    armor_value = 8
-    weight = 16
+    armor_value = 10
+    weight = 20
 
 
 class PotionHealLightTemplate(PotionTemplate):

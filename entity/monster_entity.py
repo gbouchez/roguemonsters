@@ -156,22 +156,26 @@ class MonsterEntity(GenericEntity):
         return max(0, accuracy)
 
     def get_damage(self):
+        damage = 10
         weapon = self.inventory.get_equip(ItemType.WEAPON)
         if not weapon:
-            return self.monster_race.get_natural_damage() * 2
-        damage = weapon.damage
-        if weapon.template.weight != 0:
-            if self.get_strength() < weapon.template.weight:
-                damage /= 2
-                damage += damage * self.get_strength() / weapon.template.weight
-            else:
-                damage += damage * min(1, (self.get_strength() - weapon.template.weight) / weapon.template.weight)
+            weapon_damage = self.monster_race.get_natural_damage() * 2
         else:
-            damage *= 2
-        damage += self.get_equipment_damage_bonus() - weapon.damage
+            weapon_damage = weapon.damage
+            if weapon.template.weight != 0:
+                if self.get_strength() < weapon.template.weight:
+                    weapon_damage /= 2
+                    weapon_damage += weapon_damage * self.get_strength() / weapon.template.weight
+                else:
+                    weapon_damage += weapon_damage * min(1, (self.get_strength() - weapon.template.weight) / weapon.template.weight)
+            else:
+                weapon_damage *= 2
+
+            damage += self.get_equipment_damage_bonus() - weapon.damage
+        damage += weapon_damage
         damage += self.get_total_bonus('damage')
 
-        return max(1, int(damage))
+        return max(0, int(damage))
 
     def get_evasion(self):
         evasion = 15
@@ -200,10 +204,10 @@ class MonsterEntity(GenericEntity):
         return block
 
     def get_armor_value(self):
-        value = 0
+        value = 10
         value += self.get_equipment_armor_bonus()
         value += self.get_total_bonus('armor')
-        return value
+        return max(0, value)
 
     def get_attack_speed(self):
         speed = self.attack_speed

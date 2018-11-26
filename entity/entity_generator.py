@@ -70,8 +70,9 @@ def generate_fighting_entity(game_map, level=1):
             item_type=slot,
             max_weight=monster.get_strength()
         )
-        monster.inventory.add_item(item)
-        monster.inventory.equip(item)
+        if item:
+            monster.inventory.add_item(item)
+            monster.inventory.equip(item)
 
     return monster
 
@@ -87,6 +88,8 @@ def generate_item_entity(game_map=None, level=1, item_type=None, max_weight=None
         templates = templates_by_type.get(item_type)
     else:
         templates = list(filter(lambda template: template.weight <= max_weight, templates_by_type.get(item_type)))
+    if not templates:
+        return None
     template = choice(templates)
     item = ItemEntity(game_map=game_map)
     item.set_template(template)
