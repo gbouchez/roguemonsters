@@ -1,4 +1,5 @@
 # Todo
+ - rename combat to battle...
  - refactor battle system
  - diminishes natural regen based on constitution
  - blocked LOS targeting (spider web)
