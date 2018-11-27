@@ -1,7 +1,4 @@
-from random import randint
-
 from numpy.random.mtrand import choice
-
 from entity.battle_abilities import BattleAbilityMoveToPlayer, BattleAbilityAttackPlayer, BattleAbilitySpiderWeb
 from entity.battle_trait import get_random_possible_trait, TraitFastWalker, TraitGoodEyesight
 from entity.item_entity import ItemType
@@ -13,7 +10,7 @@ class MonsterRace:
     name_article = 'a'
     char = '?'
     color = 255, 255, 255
-    stat_per_level = 4
+    stat_per_level = 2
     weight_strength = 12
     weight_dexterity = 12
     weight_constitution = 12
@@ -51,17 +48,18 @@ class MonsterRace:
         return 1 + int(total_stats)
 
     def apply_race(self, monster):
-        monster.strength = self.weight_strength - 2
-        monster.dexterity = self.weight_dexterity - 2
-        monster.constitution = self.weight_constitution - 2
-        monster.intelligence = self.weight_intelligence - 2
+        monster.strength = self.weight_strength
+        monster.dexterity = self.weight_dexterity
+        monster.constitution = self.weight_constitution
+        monster.intelligence = self.weight_intelligence
         monster.land_speed = self.land_speed
-        self.apply_random_stats(monster)
-        self.apply_random_stats(monster)
         for _ in range(self.traits_number):
             self.gain_trait(monster)
         if self.can_equip:
             monster.equip_slots += self.equip_slots
+
+    def gain_level(self, monster):
+        self.apply_random_stats(monster)
 
     def apply_random_stats(self, monster):
         stats = ['strength', 'dexterity', 'constitution', 'constitution']

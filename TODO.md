@@ -1,4 +1,5 @@
 # Todo
+ - fix scene not updated on ability use (only on failure ? reproduce)
  - better quit game
  - Add main menu
  - add check version on saves
@@ -9,8 +10,6 @@
  - add items and types, refactor item chances calc
  - add exp and levels for current monster
  - better distance calculation
- - more significant level up
- - more significant levels
  - effective level of race/class with more than just stats
  - more status effects (poison !)
  - status effect on attack (giant spider !)
@@ -28,6 +27,7 @@
  - monsters move outside fov
  - water malus
  - doors
+ - traps
  - autoexplore ? :D<-<
  - logs history
  - long rest

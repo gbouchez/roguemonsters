@@ -30,7 +30,7 @@ class MonsterEntity(GenericEntity):
         self.intelligence = 3
         self.monster_race = None
         self.monster_class = None
-        self.class_level = 0
+        self.level = 0
         self.traits = []
         self.ai = None
         self.dead = False
@@ -63,10 +63,17 @@ class MonsterEntity(GenericEntity):
         self.monster_race.apply_race(self)
         self.ai = BasicAI(self)
 
-    def init_class(self, monster_class, level):
+    def init_class(self, monster_class):
         self.monster_class = monster_class
-        self.class_level = level
-        self.monster_class.apply_class(self, level)
+
+    def gain_level(self, level):
+        if level < 1:
+            return
+        for _ in range(level - 1):
+            self.monster_race.gain_level(self)
+            if self.monster_class:
+                self.monster_class.gain_level(self)
+        self.level += level
 
     def add_trait(self, trait):
         self.traits.append(trait)
@@ -235,9 +242,10 @@ class MonsterEntity(GenericEntity):
 
     def get_effective_level(self):
         level = self.monster_race.get_level()
-        if self.monster_class is not None:
-            level += self.class_level
-        return level
+        return level + self.level
+
+    def get_level(self):
+        return self.level
 
     def get_soul_power(self):
         # TODO better calc

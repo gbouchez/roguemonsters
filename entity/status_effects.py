@@ -80,7 +80,7 @@ class StatusEffectSpiderWeb(StatusEffect):
     def __init__(self, monster, turns):
         super().__init__(monster, turns)
         self.total_turns = turns
-        self.total_dex_malus = -2
+        self.total_dex_malus = -1
         self.total_speed_malus = 25
         monster.add_stat_bonus('dexterity', 'spider_web', self.total_dex_malus)
         monster.add_stat_bonus('land_speed', 'spider_web', self.total_speed_malus)
@@ -104,8 +104,13 @@ class StatusEffectSpiderWeb(StatusEffect):
         add_turns = min(300, self.turns + turns) - self.turns
         self.turns += add_turns
         self.total_turns += add_turns
-        self.total_dex_malus = max(-10, self.total_dex_malus - 2)
+        self.total_dex_malus = max(-5, self.total_dex_malus - 1)
         self.total_speed_malus = min(250, self.total_speed_malus + 25)
+
+        multiplier = self.turns / self.total_turns
+        monster.add_stat_bonus('dexterity', 'spider_web', floor(self.total_dex_malus * multiplier))
+        monster.add_stat_bonus('land_speed', 'spider_web', ceil(self.total_speed_malus * multiplier))
+
         if tcod.map_is_in_fov(monster.game_map.fov_map, monster.x, monster.y):
             add_log_message(
                 LogMessage(
@@ -126,6 +131,31 @@ class StatusEffectSpiderWeb(StatusEffect):
                     tcod.desaturated_orange
                 )
             )
+
+
+class StatusEffectStrengthPotion(StatusEffect):
+    name = 'Strength bonus'
+
+    def __init__(self, monster, turns):
+        super().__init__(monster, turns)
+        self.total_turns = turns
+        monster.add_stat_bonus('dexterity', 'strength_potion', 4)
+
+    def pass_turn(self, monster):
+        self.turns -= 1
+        multiplier = self.turns / self.total_turns
+
+        monster.add_stat_bonus('strength', 'strength_potion', ceil(4 * multiplier))
+
+    def stack(self, monster, turns):
+        self.turns = turns
+        self.total_turns = turns
+
+        multiplier = self.turns / self.total_turns
+        monster.add_stat_bonus('strength', 'strength_potion', ceil(4 * multiplier))
+
+    def remove_effect(self):
+        self.monster.remove_stat_bonus('strength', 'strength_potion')
 
 
 class StatusEffectFatigue(StatusEffect):

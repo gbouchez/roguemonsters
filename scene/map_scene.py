@@ -363,14 +363,13 @@ class MapScene(GenericScene):
         tcod.console_print_ex(self.stat_console, 1, 1, tcod.BKGND_NONE, tcod.LEFT,
                               'Race:  {0}'.format(str.upper(self.player.entity.monster_race.name)))
         class_name = 'None'
-        class_level = '-'
         if self.player.entity.monster_class is not None:
             class_name = str.upper(self.player.entity.monster_class.name)
-            class_level = self.player.entity.class_level
+        level = self.player.entity.get_level()
         tcod.console_print_ex(self.stat_console, 1, 2, tcod.BKGND_NONE, tcod.LEFT,
                               'Class: {0}'.format(class_name))
         tcod.console_print_ex(self.stat_console, 1, 3, tcod.BKGND_NONE, tcod.LEFT,
-                              'Level: {0}'.format(str(class_level)))
+                              'Level: {0}'.format(str(level)))
         tcod.console_print_ex(self.stat_console, 1, 7, tcod.BKGND_NONE, tcod.LEFT,
                               'STR {0:02} DEX {1:02} CON {2:02} INT {3:02}'.format(
                                   self.player.entity.get_strength(),

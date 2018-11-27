@@ -4,7 +4,7 @@ from enum import Enum
 from random import choice
 
 from battle import attack
-from entity.entity_generator import generate_fighting_entity, generate_item_entity
+from entity.entity_generator import generate_monster, generate_item_entity
 from entity.item_entity import ItemEntity
 from entity.monster_entity import MonsterEntity
 from entity.status_effects import StatusEffectSoulbound
@@ -95,7 +95,7 @@ class Map:
         if monster is not None:
             monster.game_map = self
         else:
-            monster = generate_fighting_entity(self, self.depth)
+            monster = generate_monster(self, self.depth)
         monster.x = x
         monster.y = y
         self.entities.append(monster)

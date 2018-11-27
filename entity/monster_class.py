@@ -1,23 +1,17 @@
 from numpy.random.mtrand import choice
-
 from entity.battle_abilities import BattleAbilityRage
-from entity.battle_trait import get_random_possible_trait
 
 
 class MonsterClass:
     name = ''
-    stat_per_level = 4
+    stat_per_level = 2
     weight_strength = 10
     weight_dexterity = 10
     weight_constitution = 10
     weight_intelligence = 10
 
-    def apply_class(self, monster, level):
-        for _ in range(level):
-            self.apply_level(monster, _ + 1)
-
-    def apply_level(self, monster, level):
-        self.gain_trait(monster, level)
+    def gain_level(self, monster):
+        self.gain_trait(monster)
         stats = ['strength', 'dexterity', 'constitution', 'constitution']
         weights = [self.weight_strength, self.weight_dexterity, self.weight_constitution, self.weight_intelligence]
         sum_weights = sum(weights)
@@ -33,7 +27,7 @@ class MonsterClass:
             elif chosen_stat == 'intelligence':
                 monster.intelligence += 1
 
-    def gain_trait(self, monster, level):
+    def gain_trait(self, monster):
         # todo gain class traits
         trait = None
 

@@ -39,8 +39,7 @@ def get_random_level(level=1):
 def get_random_race_for_level(level=1):
     possible_races = []
     for race in all_races:
-        if race.can_have_class and race.get_level() < level \
-                or not race.can_have_class and race.get_level() == level:
+        if race.get_level() <= level:
             possible_races.append(race)
 
     return choice(possible_races)
@@ -54,14 +53,15 @@ def get_random_class_for_monster(monster):
     return choice(possible_classes)
 
 
-def generate_fighting_entity(game_map, level=1):
+def generate_monster(game_map, level=1):
     level = get_random_level(level)
     race = get_random_race_for_level(level)
     monster = MonsterEntity(game_map)
     monster.init_race(race)
-    if race.can_have_class and race.get_level() < level:
+    if race.can_have_class:
         monster_class = get_random_class_for_monster(monster)
-        monster.init_class(monster_class, level - race.get_level())
+        monster.init_class(monster_class)
+    monster.gain_level(1 + level - race.get_level())
     monster.init_fighter()
 
     for slot in monster.equip_slots:

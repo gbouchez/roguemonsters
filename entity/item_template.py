@@ -1,6 +1,7 @@
 from random import randint
 
 from entity.item_entity import ItemType
+from entity.status_effects import StatusEffectStrengthPotion
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from messages.messages import get_message
 
@@ -150,8 +151,31 @@ class PotionHealLightTemplate(PotionTemplate):
     @classmethod
     def use(cls, item):
         super(PotionHealLightTemplate, cls).use(item)
-        heal_amount = randint(1, item.monster.get_constitution())
-        heal_amount += randint(1, item.monster.get_constitution())
-        heal_amount += randint(1, item.monster.get_constitution())
-        heal_amount = max(5, int(heal_amount / 3))
-        item.monster.heal(heal_amount)
+        item.monster.heal(item.monster.get_constitution())
+
+
+class PotionHealMediumTemplate(PotionTemplate):
+    name = 'potion of medium healing'
+
+    @classmethod
+    def use(cls, item):
+        super(PotionHealMediumTemplate, cls).use(item)
+        item.monster.heal(item.monster.get_constitution() * 3)
+
+
+class PotionHealHeavyTemplate(PotionTemplate):
+    name = 'potion of heavy healing'
+
+    @classmethod
+    def use(cls, item):
+        super(PotionHealHeavyTemplate, cls).use(item)
+        item.monster.heal(item.monster.get_constitution() * 8)
+
+
+class PotionStrengthTemplate(PotionTemplate):
+    name = 'potion of strength'
+
+    @classmethod
+    def use(cls, item):
+        super(PotionStrengthTemplate, cls).use(item)
+        item.monster.add_status(StatusEffectStrengthPotion, 20)

@@ -185,7 +185,7 @@ class BattleAbilityRage(BattleAbility):
 
     @classmethod
     def use_ability(cls, monster, target):
-        monster.add_status(StatusEffectRage, int(monster.get_constitution() / 2))
+        monster.add_status(StatusEffectRage, monster.get_constitution())
         cls.reset_turn(monster)
 
     @staticmethod
