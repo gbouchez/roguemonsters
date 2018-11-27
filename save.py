@@ -9,7 +9,7 @@ def save_game(player):
 
 def load_game():
     if not os.path.isfile('save.dat'):
-        raise FileNotFoundError
+        return None
 
     with shelve.open('save.dat', 'r') as data_file:
         player = data_file['player']
@@ -19,6 +19,6 @@ def load_game():
 
 def delete_game():
     if not os.path.isfile('save.dat'):
-        raise FileNotFoundError
+        return
 
     os.remove('save.dat')

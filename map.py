@@ -22,9 +22,12 @@ class TileType(Enum):
 
 
 class Tile:
-    def __init__(self, tile_type=TileType.WALL):
+    def __init__(self, x, y, tile_type=TileType.WALL):
         self.tile_type = tile_type
         self.explored = False
+        self.stairs = False
+        self.x = x
+        self.y = y
 
         if tile_type == TileType.WALL:
             walkable = False
@@ -64,8 +67,15 @@ class Map:
         self.height = height
         self.entities = []
         self.depth = depth
-        self.field = [[Tile() for y in range(self.height)] for x in range(self.width)]
+        self.field = [[Tile(x, y) for y in range(self.height)] for x in range(self.width)]
         self.fov_map = None
+
+    def get_all_tiles(self):
+        tiles = []
+        for x in range(self.width):
+            tiles += list(self.field[x])
+
+        return tiles
 
     def move_monster(self, monster, coordinates):
         dx, dy = coordinates

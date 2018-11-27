@@ -1,4 +1,8 @@
 # Todo
+ - stairs that do something
+ - better quit game
+ - Add main menu
+ - add check version on saves
  - rename combat to battle...
  - refactor battle system
  - diminishes natural regen based on constitution

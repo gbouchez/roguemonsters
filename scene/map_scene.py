@@ -284,6 +284,14 @@ class MapScene(GenericScene):
                             tcod.black,
                             tcod.BKGND_SET
                         )
+                    if (visible or self.game_map.field[x][y].explored) and self.game_map.field[x][y].stairs:
+                        tcod.console_put_char(
+                            self.field_console,
+                            x + dx,
+                            y + dy,
+                            '>',
+                            tcod.BKGND_NONE
+                        )
 
         for x in range(field_console_width):
             for y in range(field_console_height):
@@ -422,6 +430,10 @@ class MapScene(GenericScene):
                 continue
             tcod.console_put_char(self.field_console, entity.x + dx, entity.y + dy, ' ', tcod.BKGND_NONE)
         self.render_next = False
+
+        stair_tiles = list(filter(lambda tile: tile.stairs, self.game_map.get_all_tiles()))
+        for stair in stair_tiles:
+            tcod.console_put_char(self.field_console, stair.x + dx, stair.y + dy, ' ', tcod.BKGND_NONE)
 
     def manage_all_entities(self):
         if self.player.entity.dead:

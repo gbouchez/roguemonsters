@@ -390,7 +390,6 @@ class MonsterEntity(GenericEntity):
 
     def remove_stat_bonus(self, stat, source):
         del self.stat_bonuses.get(stat)[source]
-        del self.stat_bonuses.get(stat)[source]
 
     def get_abilities(self):
         abilities = []

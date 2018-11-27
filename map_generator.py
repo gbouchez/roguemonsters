@@ -19,6 +19,12 @@ class MapGenerator:
         game_map = Map(depth, 80, 60)
         self.make_map(game_map)
 
+        walkable_tiles = list(filter(lambda tile: tile.walkable, game_map.get_all_tiles()))
+
+        stair_tiles = choice(walkable_tiles, 3, replace=False)
+        for tile in stair_tiles:
+            tile.stairs = True
+
         return game_map
 
     def make_map(self, game_map):
@@ -116,7 +122,7 @@ class MapGenerator:
     def create_room(self, game_map, rect):
         for x in range(rect.x1 + 1, rect.x2):
             for y in range(rect.y1 + 1, rect.y2):
-                game_map.field[x][y].__init__(TileType.FLOOR)
+                game_map.field[x][y].__init__(x, y, TileType.FLOOR)
         if randint(0, 9) <= 8:
             self.decorate_room(game_map, rect)
 
@@ -130,7 +136,7 @@ class MapGenerator:
         for x in todo:
             if game_map.field[x][y].tile_type != TileType.WALL and not first:
                 return False
-            game_map.field[x][y].__init__(TileType.FLOOR)
+            game_map.field[x][y].__init__(x, y, TileType.FLOOR)
             first = False
         return True
 
@@ -143,7 +149,7 @@ class MapGenerator:
         for y in todo:
             if game_map.field[x][y].tile_type != TileType.WALL and not first:
                 return False
-            game_map.field[x][y].__init__(TileType.FLOOR)
+            game_map.field[x][y].__init__(x, y, TileType.FLOOR)
             first = False
         return True
 
@@ -162,7 +168,7 @@ class MapGenerator:
             y2 = randint(y1, rect.y2 - 1)
             for x in range(x1, x2):
                 for y in range(y1, y2):
-                    game_map.field[x][y].__init__(tile_type)
+                    game_map.field[x][y].__init__(x, y, tile_type)
 
 
 class Rect:
