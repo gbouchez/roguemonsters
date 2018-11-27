@@ -1,7 +1,7 @@
 import tcod
 from enum import Enum
 from random import randint
-from combat import attack
+from battle import attack
 from entity.status_effects import StatusEffectRage, StatusEffectSoulbound, StatusEffectFatigue, StatusEffectSpiderWeb
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from messages.messages import get_message

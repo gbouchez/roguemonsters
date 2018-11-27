@@ -3,7 +3,7 @@ import tcod
 from enum import Enum
 from random import choice
 
-from combat import attack
+from battle import attack
 from entity.entity_generator import generate_fighting_entity, generate_item_entity
 from entity.item_entity import ItemEntity
 from entity.monster_entity import MonsterEntity
