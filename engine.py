@@ -6,6 +6,7 @@ from map_generator import MapGenerator
 from messages.messages import get_message
 from player import Player
 from render import RenderEngine
+from save import load_game, save_game
 from scene.map_scene import MapScene
 
 
@@ -14,10 +15,14 @@ class Game:
         self.render_engine = RenderEngine()
         self.input_manager = InputManager()
         self.map_generator = MapGenerator()
-        self.player = Player()
-        first_map = self.map_generator.generate_map(1)
-        map_scene = MapScene(self.player, first_map)
-        first_map.take_over_monster(self.player)
+        self.player = load_game()
+        if self.player is None:
+            self.player = Player()
+            game_map = self.map_generator.generate_map(1)
+            game_map.take_over_monster(self.player)
+        game_map = self.player.entity.game_map
+
+        map_scene = MapScene(self.player, game_map)
         self.current_scene = map_scene
 
     def run(self):
@@ -56,4 +61,7 @@ class Game:
                 elif input_return['action'] == 'change_scene':
                     self.current_scene = input_return['scene']
                     self.current_scene.render_next = True
+
+        if not self.player.entity.dead:
+            save_game(self.player)
 

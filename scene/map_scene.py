@@ -14,6 +14,7 @@ from input import InputType
 from game_log import get_message_pool
 from messages.messages import get_message
 from modes import MapMode
+from save import save_game
 from scene.ability_scene import AbilityScene
 from scene.generic_scene import GenericScene
 from scene.inventory_scene import InventoryScene, InventoryMode
@@ -131,6 +132,11 @@ class MapScene(GenericScene):
                 self.fov_recompute = True
                 self.player_took_action = True
         elif game_input.type == InputType.CHAR:
+            if game_input.value == 's' and game_input.key.lctrl:
+                save_game(self.player)
+                self.need_confirm = {'action': 'save'}
+                return {'action': 'cancel'}
+
             if game_input.value == 's':
                 self.player.entity.reset_turn(100)
                 self.player_took_action = True

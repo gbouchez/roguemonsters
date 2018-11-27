@@ -8,6 +8,7 @@ from entity.monster_ai import BasicAI
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from inventory import Inventory
 from messages.messages import get_message
+from save import delete_game
 
 
 class MonsterEntity(GenericEntity):
@@ -313,6 +314,8 @@ class MonsterEntity(GenericEntity):
                 )
             )
             self.dead = True
+            if self.player is not None:
+                delete_game()
 
     def reset_turn(self, turns):
         self.turn_to_action = max(10, turns)
@@ -386,6 +389,7 @@ class MonsterEntity(GenericEntity):
         self.stat_bonuses.get(stat)[source] = value
 
     def remove_stat_bonus(self, stat, source):
+        del self.stat_bonuses.get(stat)[source]
         del self.stat_bonuses.get(stat)[source]
 
     def get_abilities(self):

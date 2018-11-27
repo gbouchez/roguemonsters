@@ -19,8 +19,8 @@ class GenericScene:
                 elif game_input.value == 'N':
                     self.need_confirm = None
             return {'action': 'super'}
-        if game_input.type == InputType.KEY and game_input.value == tcod.KEY_ESCAPE:
-            return {'action': 'cancel'}
+        # if game_input.type == InputType.KEY and game_input.value == tcod.KEY_ESCAPE:
+        #     return {'action': 'cancel'}
         return None
 
     def render(self, console):
