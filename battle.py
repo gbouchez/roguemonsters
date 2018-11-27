@@ -2,6 +2,8 @@ from math import floor
 from random import randint
 
 import tcod
+from numpy import average
+from numpy.random.mtrand import randint
 
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from messages.messages import get_message
@@ -70,13 +72,12 @@ def make_damage_roll(monster, target):
         damage_multiplier = min(3, monster.get_damage() / target.get_armor_value())
     else:
         damage_multiplier = 3
+    strength_multiplier = 10 + monster.get_strength()
+    constitution_divider = 10 + target.get_constitution()
     max_damage = max(0, floor(
-        (monster.get_strength() * monster.get_strength() / target.get_constitution())
+        (strength_multiplier * strength_multiplier / constitution_divider)
         * damage_multiplier
     ))
-    if max_damage == 0:
-        return 0
-    roll = randint(1, max_damage)
-    roll += randint(1, max_damage)
-    roll += randint(1, max_damage)
-    return int(roll / 3)
+    if 0 <= max_damage <= 1:
+        return int(max_damage)
+    return int(average(randint(1, max_damage, 10)))

@@ -81,7 +81,7 @@ class MonsterEntity(GenericEntity):
             self.hp = self.get_max_hp()
 
     def get_max_hp(self):
-        return max(1, self.max_hp + int(10 * pow(1.1, self.get_constitution())))
+        return max(1, self.max_hp + (10 + self.get_constitution()) * 8)
 
     def get_hp(self):
         self.check_max_hp()
