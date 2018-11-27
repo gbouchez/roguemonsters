@@ -1,7 +1,4 @@
 import textwrap
-from enum import Enum
-
-import numpy
 import tcod
 from tcod import line_where
 
@@ -12,6 +9,7 @@ from entity.monster_entity import MonsterEntity
 from fov import initialize_fov, recompute_fov
 from input import InputType
 from game_log import get_message_pool
+from map_generator import generate_map
 from messages.messages import get_message
 from modes import MapMode
 from save import save_game
@@ -48,6 +46,7 @@ class MapScene(GenericScene):
         self.game_map = game_map
         self.game_map.fov_map = initialize_fov(game_map)
         self.fov_recompute = True
+        self.render_next = True
 
     def manage_input(self, game_input):
         super_input = super().manage_input(game_input)
@@ -136,8 +135,10 @@ class MapScene(GenericScene):
                 save_game(self.player)
                 self.need_confirm = {'action': 'save'}
                 return {'action': 'cancel'}
-
-            if game_input.value == 's':
+            elif game_input.value == '>':
+                if self.game_map.field[self.player.entity.x][self.player.entity.y].stairs:
+                    self.go_downstairs()
+            elif game_input.value == 's':
                 self.player.entity.reset_turn(100)
                 self.player_took_action = True
             elif game_input.value == ',':
@@ -450,3 +451,7 @@ class MapScene(GenericScene):
                         entity.take_action(self.player)
                     else:
                         entity.rest_turn()
+
+    def go_downstairs(self):
+        new_map = generate_map(self.game_map.depth + 1, self.player)
+        self.initialize_map(new_map)

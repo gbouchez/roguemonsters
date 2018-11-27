@@ -1,5 +1,4 @@
 # Todo
- - stairs that do something
  - better quit game
  - Add main menu
  - add check version on saves

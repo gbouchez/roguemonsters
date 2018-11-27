@@ -89,13 +89,16 @@ class Map:
                 return True
         return False
 
-    def add_random_monster(self, x, y):
+    def add_monster(self, x, y, monster=None):
         if not self.can_walk_at(x, y):
             return
-        entity = generate_fighting_entity(self, self.depth)
-        entity.x = x
-        entity.y = y
-        self.entities.append(entity)
+        if monster is not None:
+            monster.game_map = self
+        else:
+            monster = generate_fighting_entity(self, self.depth)
+        monster.x = x
+        monster.y = y
+        self.entities.append(monster)
 
     def add_random_item(self, x, y):
         if not self.can_walk_at(x, y, False):

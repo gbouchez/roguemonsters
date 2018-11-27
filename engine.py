@@ -2,7 +2,7 @@ import tcod
 
 from game_log import add_log_message, LogMessage
 from input import InputManager
-from map_generator import MapGenerator
+from map_generator import generate_map
 from messages.messages import get_message
 from player import Player
 from render import RenderEngine
@@ -14,11 +14,10 @@ class Game:
     def __init__(self):
         self.render_engine = RenderEngine()
         self.input_manager = InputManager()
-        self.map_generator = MapGenerator()
         self.player = load_game()
         if self.player is None:
             self.player = Player()
-            game_map = self.map_generator.generate_map(1)
+            game_map = generate_map(1)
             game_map.take_over_monster(self.player)
         game_map = self.player.entity.game_map
 
