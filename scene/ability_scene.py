@@ -1,7 +1,5 @@
-from enum import Enum
-
 import tcod
-
+from enum import Enum
 from entity.battle_abilities import AbilityTargeting
 from input import InputType
 from messages.messages import get_message

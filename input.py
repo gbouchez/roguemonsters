@@ -29,7 +29,7 @@ class InputManager:
             return Input(InputType.KEY, key.vk, key)
         if key.vk and key.vk == tcod.KEY_TEXT:
             return Input(InputType.CHAR, key.text, key)
-        if key.vk and key.vk == tcod.KEY_CHAR:
+        if key.vk and key.vk == tcod.KEY_CHAR and (key.lctrl or key.rctrl):
             return Input(InputType.CHAR, chr(key.c), key)
         if mouse:
             return Input(InputType.MOUSE, mouse, key)

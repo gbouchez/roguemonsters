@@ -2,8 +2,6 @@
  - better quit game
  - Add main menu
  - add check version on saves
- - refactor battle system
- - diminishes natural regen based on constitution
  - blocked LOS targeting (spider web)
  - aoe
  - clean failed ability use
@@ -11,7 +9,6 @@
  - add items and types, refactor item chances calc
  - add exp and levels for current monster
  - better distance calculation
- - multiple dungeon levels
  - more significant level up
  - more significant levels
  - effective level of race/class with more than just stats
@@ -76,3 +73,4 @@
  - add effect origin to status effects
  - "breath" type reload for spider webs
  - various level types with random additional stairs in water
+ - display current depth in stats

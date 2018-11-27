@@ -1,4 +1,5 @@
 import math
+from math import floor
 
 import tcod
 
@@ -261,16 +262,19 @@ class MonsterEntity(GenericEntity):
         self.reset_turn(100)
 
     def rest(self):
-        self.rest_turns += 1
+        self.rest_turns += 10
         if self.rest_turns >= self.get_rest_wait():
-            self.heal(1, False)
-            self.rest_turns -= self.get_rest_wait()
+            self.heal(floor(self.rest_turns / self.get_rest_wait()), False)
+            self.rest_turns = self.rest_turns % self.get_rest_wait()
 
         for status in self.status_effects:
             status.pass_turn(self)
             if status.turns == 0:
                 status.remove_effect()
                 self.status_effects.remove(status)
+
+    def get_rest_wait(self):
+        return int(500 / self.get_constitution())
 
     def get_status(self, search_status):
         for status in self.status_effects:
@@ -296,12 +300,6 @@ class MonsterEntity(GenericEntity):
                     tcod.desaturated_green if self.player is None else tcod.green
                 )
             )
-
-    def get_rest_amount(self):
-        return max(1, int(self.constitution / 2))
-
-    def get_rest_wait(self):
-        return int(100 / self.get_rest_amount())
 
     def take_damage(self, damage):
         self.hp -= damage
