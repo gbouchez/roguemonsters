@@ -1,5 +1,7 @@
 # Todo
- - fix scene not updated on ability use (only on failure ? reproduce)
+ - monsters move outside fov
+    - fix monster not moving if against a corridor entrance if not fixed previously
+ - Refactor scene "data" system
  - better quit game
  - Add main menu
  - add check version on saves
@@ -24,7 +26,6 @@
  - sneak
  - weapon drawing and monster alertness
  - skills
- - monsters move outside fov
  - water malus
  - doors
  - traps

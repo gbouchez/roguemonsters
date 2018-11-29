@@ -49,6 +49,9 @@ class MapScene(GenericScene):
         self.render_next = True
 
     def manage_input(self, game_input):
+        if self.data:
+            self.player_action()
+            self.data = None
         super_input = super().manage_input(game_input)
         if super_input is not None:
             if super_input['action'] == 'cancel':
@@ -85,12 +88,15 @@ class MapScene(GenericScene):
             return_value = self.manage_input_targeting(game_input)
 
         if self.player_took_action:
-            self.player_took_action = False
-            self.player.entity.rest()
-            self.render_next = True
-            self.manage_all_entities()
+            self.player_action()
 
         return return_value
+
+    def player_action(self):
+        self.player_took_action = False
+        self.player.entity.rest()
+        self.render_next = True
+        self.manage_all_entities()
 
     def manage_input_field(self, game_input):
         if game_input.type == InputType.KEY:
@@ -203,6 +209,7 @@ class MapScene(GenericScene):
         self.render_next = True
         if target:
             self.previous_scene.data = {'action': 'targeted', 'target': target}
+            self.data = {'action': True}
             self.target_tiles = []
             return {'action': 'cancel'}
         return None
@@ -438,7 +445,7 @@ class MapScene(GenericScene):
     def manage_all_entities(self):
         if self.player.entity.dead:
             return
-        while True:
+        while 1:
             for entity in self.game_map.entities:
                 if not isinstance(entity, MonsterEntity):
                     continue

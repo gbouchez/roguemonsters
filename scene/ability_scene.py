@@ -61,7 +61,6 @@ class AbilityScene(GenericScene):
                     elif self.mode == AbilityMode.USE:
                         if ability.targeting == AbilityTargeting.SELF:
                             ability.use_ability(self.player.entity, self.player.entity)
-                            self.previous_scene
                             return {'action': 'cancel_with_action'}
                         elif ability.targeting == AbilityTargeting.LOS:
                             self.ability = ability
