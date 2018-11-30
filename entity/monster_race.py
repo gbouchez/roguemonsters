@@ -1,5 +1,5 @@
 from numpy.random.mtrand import choice
-from entity.battle_abilities import BattleAbilityMoveToPlayer, BattleAbilityAttackPlayer, BattleAbilitySpiderWeb
+from entity.battle_abilities import BattleAbilityMoveToTarget, BattleAbilityAttackPlayer, BattleAbilitySpiderWeb
 from entity.battle_trait import get_random_possible_trait, TraitFastWalker, TraitGoodEyesight
 from entity.item_entity import ItemType
 
@@ -79,7 +79,7 @@ class MonsterRace:
 
     def get_abilities(self):
         return [
-            BattleAbilityMoveToPlayer,
+            BattleAbilityMoveToTarget,
             BattleAbilityAttackPlayer,
         ]
 

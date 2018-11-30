@@ -30,7 +30,8 @@ class AbilityScene(GenericScene):
             self.previous_scene.mode = MapMode.FIELD
             self.previous_scene.render_next = True
             if self.data.get('action') == 'targeted':
-                self.ability.use_ability(self.player.entity, self.data.get('target'))
+                self.player.entity.target = self.data.get('target')
+                self.ability.use_ability(self.player.entity)
                 return {'action': 'cancel_with_action'}
             self.ability = None
             self.data = None
@@ -60,7 +61,7 @@ class AbilityScene(GenericScene):
                         self.ability = ability
                     elif self.mode == AbilityMode.USE:
                         if ability.targeting == AbilityTargeting.SELF:
-                            ability.use_ability(self.player.entity, self.player.entity)
+                            ability.use_ability(self.player.entity)
                             return {'action': 'cancel_with_action'}
                         elif ability.targeting == AbilityTargeting.LOS:
                             self.ability = ability

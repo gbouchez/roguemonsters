@@ -18,6 +18,8 @@ class MonsterEntity(GenericEntity):
         self.game_map = game_map
         self.player = None
         self.target = None
+        self.target_x = None
+        self.target_y = None
         self.blocks = True
         self.turn_to_action = 100
         self.hp = 0
@@ -326,10 +328,10 @@ class MonsterEntity(GenericEntity):
     def reset_turn(self, turns):
         self.turn_to_action = max(10, turns)
 
-    def take_action(self, player):
+    def take_action(self):
         if self.dead:
             return
-        self.ai.take_turn(player)
+        self.ai.take_turn()
         if self.turn_to_action <= 0:
             self.reset_turn(100)
         self.rest()
@@ -433,7 +435,7 @@ class MonsterEntity(GenericEntity):
         dy = other.y - self.y
         return math.sqrt(dx ** 2 + dy ** 2)
 
-    def move_astar(self, target):
+    def move_astar(self, target_x, target_y, target=None):
         # Create a FOV map that has the dimensions of the map
         fov = tcod.map_new(self.game_map.width, self.game_map.height)
 
@@ -447,16 +449,19 @@ class MonsterEntity(GenericEntity):
         # Check also that the object isn't self or the target (so that the start and the end points are free)
         # The AI class handles the situation if self is next to the target so it will not use this A* function anyway
         for entity in self.game_map.entities:
-            if entity.is_blocking() and entity != self and entity != target:
+            if entity.is_blocking() and entity != self and (target is None or entity != target):
                 # Set the tile as a wall so it must be navigated around
                 tcod.map_set_properties(fov, entity.x, entity.y, True, False)
 
         # Allocate a A* path
         # The 1.41 is the normal diagonal cost of moving, it can be set as 0.0 if diagonal moves are prohibited
         my_path = tcod.path_new_using_map(fov, 1)
+        if target:
+            target_x = target.x
+            target_y = target.y
 
         # Compute the path between self's coordinates and the target's coordinates
-        tcod.path_compute(my_path, self.x, self.y, target.x, target.y)
+        tcod.path_compute(my_path, self.x, self.y, target_x, target_y)
 
         # Check if the path exists, and in this case, also the path is shorter than 25 tiles
         # The path size matters if you want the monster to use alternative longer paths (for example through other rooms) if for example the player is in a corridor
@@ -471,7 +476,7 @@ class MonsterEntity(GenericEntity):
         else:
             # Keep the old move function as a backup so that if there are no paths (for example another monster blocks a corridor)
             # it will still try to move towards the player (closer to the corridor opening)
-            self.move_towards(target.x, target.y)
+            self.move_towards(target_x, target_y)
 
             # Delete the path to free memory
         tcod.path_delete(my_path)

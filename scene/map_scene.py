@@ -2,7 +2,7 @@ import textwrap
 import tcod
 from tcod import line_where
 
-from entity.battle_abilities import BattleAbilityMoveToPlayer, BattleAbilityAttackPlayer, BattleAbilityPickItemUp, \
+from entity.battle_abilities import BattleAbilityMoveToTarget, BattleAbilityAttackPlayer, BattleAbilityPickItemUp, \
     AbilityTargeting
 from entity.item_entity import ItemEntity
 from entity.monster_entity import MonsterEntity
@@ -133,7 +133,7 @@ class MapScene(GenericScene):
                 if attacked:
                     BattleAbilityAttackPlayer.reset_turn(self.player.entity)
                 else:
-                    BattleAbilityMoveToPlayer.reset_turn(self.player.entity)
+                    BattleAbilityMoveToTarget.reset_turn(self.player.entity)
                 self.fov_recompute = True
                 self.player_took_action = True
         elif game_input.type == InputType.CHAR:
@@ -148,7 +148,7 @@ class MapScene(GenericScene):
                 self.player.entity.reset_turn(100)
                 self.player_took_action = True
             elif game_input.value == ',':
-                BattleAbilityPickItemUp.use_ability(self.player.entity, self.player.entity)
+                BattleAbilityPickItemUp.use_ability(self.player.entity)
                 self.player_took_action = True
             elif game_input.value == 'i':
                 inventory_scene = InventoryScene(self.player, self, mode=InventoryMode.USE)
@@ -454,9 +454,12 @@ class MapScene(GenericScene):
                     if entity.player is not None:
                         return
                     if tcod.map_is_in_fov(self.game_map.fov_map, entity.x, entity.y):
-                        entity.take_action(self.player)
+                        entity.target = self.player.entity
+                        entity.target_x = self.player.entity.x
+                        entity.target_y = self.player.entity.y
                     else:
-                        entity.rest_turn()
+                        entity.target = None
+                    entity.take_action()
 
     def go_downstairs(self):
         new_map = generate_map(self.game_map.depth + 1, self.player)

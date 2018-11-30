@@ -1,6 +1,6 @@
 # Todo
- - monsters move outside fov
-    - fix monster not moving if against a corridor entrance if not fixed previously
+ - Fix unused potion on usage (...) ? Reproduce ?
+ - Add monster states (wandering, alert, still...)
  - Refactor scene "data" system
  - better quit game
  - Add main menu
