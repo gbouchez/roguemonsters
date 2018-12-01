@@ -1,4 +1,5 @@
 # Todo
+ - Fix monster blocked at corridor entrance
  - Fix unused potion on usage (...) ? Reproduce ?
  - Add monster states (wandering, alert, still...)
  - Refactor scene "data" system
@@ -6,11 +7,11 @@
  - Add main menu
  - add check version on saves
  - blocked LOS targeting (spider web)
+ - fix saves on windows
  - aoe
  - clean failed ability use
  - targeting on items + refactor generic targeting scene
  - add items and types, refactor item chances calc
- - add exp and levels for current monster
  - better distance calculation
  - effective level of race/class with more than just stats
  - more status effects (poison !)

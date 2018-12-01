@@ -59,7 +59,7 @@ def attack(attacker, target):
             tcod.white
         )
     )
-    target.take_damage(damage)
+    target.take_damage(damage, attacker)
 
 
 def make_attack_roll(monster):

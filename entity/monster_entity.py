@@ -1,5 +1,5 @@
 import math
-from math import floor
+from math import floor, ceil
 
 import tcod
 
@@ -33,6 +33,7 @@ class MonsterEntity(GenericEntity):
         self.monster_race = None
         self.monster_class = None
         self.level = 0
+        self.current_exp = 0
         self.traits = []
         self.ai = None
         self.dead = False
@@ -68,7 +69,7 @@ class MonsterEntity(GenericEntity):
     def init_class(self, monster_class):
         self.monster_class = monster_class
 
-    def gain_level(self, level):
+    def gain_level(self, level, log=False):
         if level < 1:
             return
         for _ in range(level - 1):
@@ -76,6 +77,14 @@ class MonsterEntity(GenericEntity):
             if self.monster_class:
                 self.monster_class.gain_level(self)
         self.level += level
+        if log:
+            add_log_message(
+                LogMessage(
+                    get_message(get_monster_message_prefix(self) + "level_up")
+                    .format(str.capitalize(self.get_name())),
+                    tcod.orange if self.player is None else tcod.green
+                )
+            )
 
     def add_trait(self, trait):
         self.traits.append(trait)
@@ -246,6 +255,18 @@ class MonsterEntity(GenericEntity):
         level = self.monster_race.get_level()
         return level + self.level
 
+    def get_defeat_experience(self):
+        return max(0, floor(10 * pow(1.2, self.get_effective_level()) - 7))
+
+    def get_exp_to_next_level(self):
+        return max(1, floor(self.get_defeat_experience() * 10 * pow(1.1, self.get_effective_level())))
+
+    def gain_exp(self, exp):
+        self.current_exp += exp
+        while self.current_exp >= self.get_exp_to_next_level():
+            self.current_exp -= self.get_exp_to_next_level()
+            self.gain_level(1, True)
+
     def get_level(self):
         return self.level
 
@@ -311,7 +332,7 @@ class MonsterEntity(GenericEntity):
                 )
             )
 
-    def take_damage(self, damage):
+    def take_damage(self, damage, source = None):
         self.hp -= damage
         if self.hp <= 0:
             add_log_message(
@@ -322,6 +343,8 @@ class MonsterEntity(GenericEntity):
                 )
             )
             self.dead = True
+            if source is not None:
+                source.gain_exp(self.get_defeat_experience())
             if self.player is not None:
                 delete_game()
 

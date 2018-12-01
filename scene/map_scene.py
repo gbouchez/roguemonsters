@@ -50,8 +50,20 @@ class MapScene(GenericScene):
 
     def manage_input(self, game_input):
         if self.data:
-            self.player_action()
-            self.data = None
+            if self.data.get('action'):
+                self.player_action()
+                self.data = None
+            elif self.data.get('long_rest'):
+                if self.data.get('long_rest') > 0:
+                    self.data['long_rest'] -= 1
+                    self.player.entity.reset_turn(100)
+                    self.player_action()
+                else:
+                    self.data = None
+            else:
+                self.data = None
+            return None
+
         super_input = super().manage_input(game_input)
         if super_input is not None:
             if super_input['action'] == 'cancel':
@@ -147,6 +159,9 @@ class MapScene(GenericScene):
             elif game_input.value == 's':
                 self.player.entity.reset_turn(100)
                 self.player_took_action = True
+            elif game_input.value == '5':
+                if self.data is None:
+                    self.data = {'long_rest': 100}
             elif game_input.value == ',':
                 BattleAbilityPickItemUp.use_ability(self.player.entity)
                 self.player_took_action = True
@@ -377,6 +392,9 @@ class MapScene(GenericScene):
                               'Class: {0}'.format(class_name))
         tcod.console_print_ex(self.stat_console, 1, 3, tcod.BKGND_NONE, tcod.LEFT,
                               'Level: {0}'.format(str(level)))
+        tcod.console_print_ex(self.stat_console, 1, 4, tcod.BKGND_NONE, tcod.LEFT,
+                              'Exp: {0} / {1}'
+                              .format(self.player.entity.current_exp, self.player.entity.get_exp_to_next_level()))
         tcod.console_print_ex(self.stat_console, 1, 7, tcod.BKGND_NONE, tcod.LEFT,
                               'STR {0:02} DEX {1:02} CON {2:02} INT {3:02}'.format(
                                   self.player.entity.get_strength(),
@@ -457,6 +475,9 @@ class MapScene(GenericScene):
                         entity.target = self.player.entity
                         entity.target_x = self.player.entity.x
                         entity.target_y = self.player.entity.y
+                        if self.data is not None:
+                            if self.data.get('long_rest'):
+                                self.data = None
                     else:
                         entity.target = None
                     entity.take_action()

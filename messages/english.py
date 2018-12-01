@@ -9,6 +9,8 @@ messages = {
     'you.hit': '{0} attack {1} and inflict {2} damage !',
     'monster.die': '{0} is dead.',
     'you.die': '{0} die !',
+    'monster.level_up': '{0} seems stronger.',
+    'you.level_up': '{0} have leveled up !',
     'monster.rage.begin': '{0} rages !',
     'you.rage.begin': '{0} rage !',
     'monster.rage.end': '{0}\'s rage vanishes.',
