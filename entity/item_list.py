@@ -1,6 +1,7 @@
 from entity.item_template import ShortSwordTemplate, PotionHealLightTemplate, LongSwordTemplate, FlailTemplate, \
     LeatherArmourTemplate, BucklerTemplate, ScaleMailTemplate, ChainmailTemplate, WoodenShieldTemplate, DaggerTemplate, \
-    PotionHealMediumTemplate, PotionHealHeavyTemplate, PotionStrengthTemplate
+    PotionHealMediumTemplate, PotionHealHeavyTemplate, PotionStrengthTemplate, ClubTemplate, MaceTemplate, \
+    HammerTemplate, MorningstarTemplate, WarhammerTemplate, TwoHandedSwordTemplate
 from entity.item_entity import ItemType
 
 templates_by_type = {
@@ -11,10 +12,16 @@ templates_by_type = {
         PotionStrengthTemplate,
     ],
     ItemType.WEAPON: [
+        ClubTemplate,
+        MaceTemplate,
+        HammerTemplate,
+        MorningstarTemplate,
+        FlailTemplate,
+        WarhammerTemplate,
         DaggerTemplate,
         ShortSwordTemplate,
         LongSwordTemplate,
-        FlailTemplate,
+        TwoHandedSwordTemplate,
     ],
     ItemType.SHIELD: [
         WoodenShieldTemplate,

@@ -85,12 +85,20 @@ def generate_item_entity(game_map=None, level=1, item_type=None, max_weight=None
     if item_type is None:
         item_type = get_random_item_type(level)
     if max_weight is None:
-        templates = templates_by_type.get(item_type)
+        templates = list(filter(lambda template: template.get_level() <= level, templates_by_type.get(item_type)))
     else:
-        templates = list(filter(lambda template: template.weight <= max_weight, templates_by_type.get(item_type)))
+        templates = list(filter(lambda template: template.get_level() <= level
+                                and template.weight <= max_weight, templates_by_type.get(item_type)))
     if not templates:
         return None
-    template = choice(templates)
+
+    weights = []
+    for template in templates:
+        weights.append(template.get_p_at_level(level))
+    sum_weights = sum(weights)
+    weights = list(map(lambda weight: weight / sum_weights, weights))
+
+    template = choice(templates, p=weights)
     item = ItemEntity(game_map=game_map)
     item.set_template(template)
 

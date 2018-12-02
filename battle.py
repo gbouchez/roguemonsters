@@ -25,7 +25,7 @@ def attack(attacker, target):
         )
         return
 
-    damage = make_damage_roll(attacker, target)
+    damage = make_damage_roll(attacker)
     if damage <= target.get_shield_block():
         shield = target.get_shield_rate()
         roll -= shield
@@ -41,7 +41,7 @@ def attack(attacker, target):
 
     armor = target.get_armor_value()
     if armor >= 1:
-        damage -= randint(1, armor)
+        damage -= randint(0, armor)
     if damage <= 0:
         add_log_message(
             LogMessage(
@@ -67,17 +67,5 @@ def make_attack_roll(monster):
     return roll
 
 
-def make_damage_roll(monster, target):
-    if target.get_armor_value() > 0:
-        damage_multiplier = min(3, monster.get_damage() / target.get_armor_value())
-    else:
-        damage_multiplier = 3
-    strength_multiplier = 10 + monster.get_strength()
-    constitution_divider = 10 + target.get_constitution()
-    max_damage = max(0, floor(
-        (strength_multiplier * strength_multiplier / constitution_divider)
-        * damage_multiplier
-    ))
-    if 0 <= max_damage <= 1:
-        return int(max_damage)
-    return int(average(randint(1, max_damage, 10)))
+def make_damage_roll(monster):
+    return int(average(randint(1, monster.get_damage(), 10)))

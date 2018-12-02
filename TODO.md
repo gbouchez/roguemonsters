@@ -1,4 +1,7 @@
 # Todo
+ - Test new battles
+ - Prevent shield when 2handed
+ - 1.5 hands weapons
  - Fix monster blocked at corridor entrance
  - Fix unused potion on usage (...) ? Reproduce ?
  - Add monster states (wandering, alert, still...)

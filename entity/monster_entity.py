@@ -1,10 +1,12 @@
 import math
-from math import floor, ceil
+from math import floor, ceil, sqrt
 
 import tcod
 
+from battle import attack
 from entity.generic_entity import GenericEntity
 from entity.item_entity import ItemType
+from entity.item_template import EquipmentTemplate
 from entity.monster_ai import BasicAI
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from inventory import Inventory
@@ -169,33 +171,27 @@ class MonsterEntity(GenericEntity):
         weapon_weight_malus = 0
         weapon = self.inventory.get_equip(ItemType.WEAPON)
         if weapon:
-            weapon_weight_malus = max(0, weapon.template.weight - self.get_strength())
+            weapon_weight_malus = max(0, weapon.template.weight - self.get_strength() * weapon.template.hands)
         accuracy += max(0, self.get_dexterity() - weapon_weight_malus)
         accuracy += self.get_equipment_accuracy_bonus()
         accuracy += self.get_total_bonus('accuracy')
         return max(0, accuracy)
 
     def get_damage(self):
-        damage = 10
         weapon = self.inventory.get_equip(ItemType.WEAPON)
         if not weapon:
-            weapon_damage = self.monster_race.get_natural_damage() * 2
+            damage = self.monster_race.get_natural_damage() * 2
+            weight = 1
+            hands = 1
         else:
-            weapon_damage = weapon.damage
-            if weapon.template.weight != 0:
-                if self.get_strength() < weapon.template.weight:
-                    weapon_damage /= 2
-                    weapon_damage += weapon_damage * self.get_strength() / weapon.template.weight
-                else:
-                    weapon_damage += weapon_damage * min(1, (self.get_strength() - weapon.template.weight) / weapon.template.weight)
-            else:
-                weapon_damage *= 2
-
-            damage += self.get_equipment_damage_bonus() - weapon.damage
-        damage += weapon_damage
+            damage = 0
+            weight = max(1, weapon.template.weight)
+            hands = weapon.template.hands
+        damage += self.get_equipment_damage_bonus()
         damage += self.get_total_bonus('damage')
+        effective_strength = self.get_strength() * hands
 
-        return max(0, int(damage))
+        return int(max(1, min(damage * (1 + hands), damage * effective_strength / weight)))
 
     def get_evasion(self):
         evasion = 15
@@ -219,32 +215,52 @@ class MonsterEntity(GenericEntity):
 
     def get_shield_block(self):
         block = 0
-        block += self.get_equipment_shield_block_bonus()
-        block += self.get_total_bonus('shield_block')
+        shield = self.inventory.get_equip(ItemType.SHIELD)
+        if shield:
+            block += self.get_equipment_shield_block_bonus()
+            block += self.get_total_bonus('shield_block')
+            block = min(block, self.get_strength(), self.get_constitution())
         return block
 
     def get_armor_value(self):
-        value = 10
+        value = 0
         value += self.get_equipment_armor_bonus()
         value += self.get_total_bonus('armor')
         return max(0, value)
 
     def get_attack_speed(self):
-        speed = self.attack_speed
+        weight = 1
+        hands = 1
         weapon = self.inventory.get_equip(ItemType.WEAPON)
         if weapon:
-            speed += weapon.attack_speed
-        speed = max(25, speed + self.get_equipment_weight_malus())
-        speed += self.get_equipment_attack_speed_bonus()
-        speed += self.get_total_bonus('attack_speed')
-        return speed
+            weight = weapon.template.weight
+            hands = weapon.template.hands
+        min_delay = sqrt(weight) / 5
+        max_delay = sqrt(weight) * 1.2
+        effective_strength = min(weight * 3, self.get_strength() * hands)
+
+        if effective_strength < weight:
+            attack_speed = max_delay - effective_strength * min_delay * 3 / weight
+        elif weight <= effective_strength < weight * 2:
+            attack_speed = min_delay * 3 - (effective_strength - weight) * min_delay / weight
+        else:
+            attack_speed = min_delay * 2 - (effective_strength - weight * 2) * min_delay / weight
+
+        return ceil(attack_speed * 100)
 
     def get_equipment_weight_malus(self):
         malus = 0
         for slot in self.equip_slots:
             equip = self.inventory.get_equip(slot)
             if equip:
-                stat_diff = equip.template.weight - self.get_strength()
+                strength_multiplier = 1
+                if slot == ItemType.WEAPON:
+                    strength_multiplier = equip.template.hands
+                elif slot == ItemType.SHIELD:
+                    strength_multiplier = 1
+                elif slot == ItemType.BODY:
+                    strength_multiplier = 3
+                stat_diff = equip.template.weight - self.get_strength() * strength_multiplier
                 multiplier = 1
                 while stat_diff > 0:
                     malus += min(4, stat_diff) * multiplier
