@@ -12,13 +12,13 @@ class ItemTemplate:
     name = ''
     color = 255, 255, 255
     usable = False
-    equipable = False
+    equippable = False
     weight = 0
 
     @classmethod
     def apply_template(cls, item):
         item.usable = cls.usable
-        item.equipable = cls.equipable
+        item.equippable = cls.equippable
 
     @classmethod
     def use(cls, item):
@@ -40,8 +40,9 @@ class EquipmentTemplate(ItemTemplate):
     shield_rate = 0
     shield_block = 0
     armor_value = 0
-    equipable = True
+    equippable = True
     slot = None
+    strength_multiplier = 1
 
     @classmethod
     def apply_template(cls, item):
@@ -52,6 +53,10 @@ class EquipmentTemplate(ItemTemplate):
         item.shield_block = cls.shield_block
         item.armor_value = cls.armor_value
         item.damage = cls.damage
+
+    @classmethod
+    def get_strength_multiplier(cls):
+        return cls.strength_multiplier
 
 
 class WeaponTemplate(EquipmentTemplate):
@@ -66,6 +71,10 @@ class WeaponTemplate(EquipmentTemplate):
     @classmethod
     def get_p_at_level(cls, level):
         return min(10, max(0, 13 + level * 3 - cls.damage))
+
+    @classmethod
+    def get_strength_multiplier(cls):
+        return cls.hands
 
 
 class ShieldTemplate(EquipmentTemplate):
@@ -84,6 +93,14 @@ class ShieldTemplate(EquipmentTemplate):
 class BodyTemplate(EquipmentTemplate):
     item_type = ItemType.BODY
     char = '='
+
+    @classmethod
+    def get_level(cls):
+        return 1 + max(0, (cls.armor_value - 5))
+
+    @classmethod
+    def get_p_at_level(cls, level):
+        return min(10, max(0, 5 + level - cls.armor_value))
 
 
 class PotionTemplate(ItemTemplate):
@@ -191,21 +208,21 @@ class LeatherArmourTemplate(BodyTemplate):
     name = 'leather armour'
     description = 'An armour made of leather.'
     armor_value = 3
-    weight = 6
+    weight = 10
 
 
 class ScaleMailTemplate(BodyTemplate):
     name = 'scale mail'
     description = 'A scale mail.'
-    armor_value = 6
-    weight = 12
+    armor_value = 5
+    weight = 35
 
 
 class ChainmailTemplate(BodyTemplate):
     name = 'chainmail'
     description = 'A chainmail.'
-    armor_value = 10
-    weight = 20
+    armor_value = 8
+    weight = 60
 
 
 class PotionHealLightTemplate(PotionTemplate):

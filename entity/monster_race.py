@@ -1,7 +1,10 @@
+from random import randint
+
 from numpy.random.mtrand import choice
 from entity.battle_abilities import BattleAbilityMoveToTarget, BattleAbilityAttackPlayer, BattleAbilitySpiderWeb
 from entity.battle_trait import get_random_possible_trait, TraitFastWalker, TraitGoodEyesight
 from entity.item_entity import ItemType
+from entity.status_effects import StatusEffectPoison
 
 
 class MonsterRace:
@@ -30,6 +33,7 @@ class MonsterRace:
         ItemType.SHIELD,
         ItemType.BODY,
     ]
+    attack_effect = 0
 
     def get_level(self):
         total_stats = self.weight_strength + self.weight_dexterity + self.weight_constitution + self.weight_intelligence
@@ -44,6 +48,8 @@ class MonsterRace:
         else:
             total_stats += len(self.equip_slots) - 3
         total_stats += self.natural_armor
+
+        total_stats += self.attack_effect
 
         return 1 + int(total_stats)
 
@@ -97,6 +103,9 @@ class MonsterRace:
 
     def get_possible_traits(self):
         return self.traits_list + self.custom_traits_list
+
+    def apply_attack_effect(self, monster, target):
+        return
 
 
 class MonsterRaceGoblin(MonsterRace):
@@ -209,11 +218,38 @@ class MonsterRaceGiantSpider(MonsterRace):
     natural_damage = 3
     natural_armor = 2
     can_equip = False
+    attack_effect = 2
 
     def get_abilities(self):
         return super(MonsterRaceGiantSpider, self).get_abilities() + [
             BattleAbilitySpiderWeb,
         ]
+
+    def apply_attack_effect(self, monster, target):
+        if randint(0, 9) < 4:
+            target.add_status(StatusEffectPoison, monster.get_constitution())
+        return
+
+
+class MonsterRaceGiantScorpion(MonsterRace):
+    name = 'giant scorpion'
+    char = 's'
+    color = 160, 0, 160
+    can_have_class = False
+    weight_strength = 18
+    weight_dexterity = 20
+    weight_constitution = 12
+    weight_intelligence = 5
+    land_speed = 90
+    natural_damage = 4
+    natural_armor = 1
+    can_equip = False
+    attack_effect = 3
+
+    def apply_attack_effect(self, monster, target):
+        if randint(0, 9) < 9:
+            target.add_status(StatusEffectPoison, monster.get_constitution())
+        return
 
 
 class MonsterRaceGiantRat(MonsterRace):
@@ -243,5 +279,6 @@ all_races = [
     MonsterRaceCentaur(),
 
     MonsterRaceGiantSpider(),
+    MonsterRaceGiantScorpion(),
     MonsterRaceGiantRat(),
 ]

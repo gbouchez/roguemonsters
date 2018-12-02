@@ -21,6 +21,10 @@ class StatusEffect:
     def remove_effect(self):
         return
 
+    @classmethod
+    def apply_success(cls, monster):
+        return True
+
 
 class StatusEffectSoulbound(StatusEffect):
     name = 'Soulbound'
@@ -190,3 +194,35 @@ class StatusEffectFatigue(StatusEffect):
                     tcod.desaturated_orange
                 )
             )
+
+
+class StatusEffectPoison(StatusEffect):
+    name = 'Poison'
+
+    def __init__(self, monster, turns):
+        super().__init__(monster, turns)
+        if tcod.map_is_in_fov(monster.game_map.fov_map, monster.x, monster.y):
+            add_log_message(
+                LogMessage(
+                    get_message(get_monster_message_prefix(self.monster) + "poison.begin")
+                    .format(str.capitalize(self.monster.get_name())),
+                    tcod.dark_orange
+                )
+            )
+
+    def pass_turn(self, monster):
+        self.turns -= 1
+        monster.take_damage(1)
+
+    def remove_effect(self):
+        if tcod.map_is_in_fov(self.monster.game_map.fov_map, self.monster.x, self.monster.y):
+            add_log_message(
+                LogMessage(
+                    get_message(get_monster_message_prefix(self.monster) + "poison.end")
+                    .format(str.capitalize(self.monster.get_name())),
+                    tcod.desaturated_orange
+                )
+            )
+
+    def stack(self, monster, turns):
+        self.turns += turns

@@ -3,10 +3,8 @@ from math import floor, ceil, sqrt
 
 import tcod
 
-from battle import attack
 from entity.generic_entity import GenericEntity
 from entity.item_entity import ItemType
-from entity.item_template import EquipmentTemplate
 from entity.monster_ai import BasicAI
 from game_log import add_log_message, LogMessage, get_monster_message_prefix
 from inventory import Inventory
@@ -193,6 +191,11 @@ class MonsterEntity(GenericEntity):
 
         return int(max(1, min(damage * (1 + hands), damage * effective_strength / weight)))
 
+    def apply_attack_effect(self, target):
+        weapon = self.inventory.get_equip(ItemType.WEAPON)
+        if not weapon:
+            self.monster_race.apply_attack_effect(self, target)
+
     def get_evasion(self):
         evasion = 15
         evasion -= self.get_equipment_weight_malus()
@@ -253,14 +256,7 @@ class MonsterEntity(GenericEntity):
         for slot in self.equip_slots:
             equip = self.inventory.get_equip(slot)
             if equip:
-                strength_multiplier = 1
-                if slot == ItemType.WEAPON:
-                    strength_multiplier = equip.template.hands
-                elif slot == ItemType.SHIELD:
-                    strength_multiplier = 1
-                elif slot == ItemType.BODY:
-                    strength_multiplier = 3
-                stat_diff = equip.template.weight - self.get_strength() * strength_multiplier
+                stat_diff = equip.template.weight - self.get_strength() * equip.template.get_strength_multiplier()
                 multiplier = 1
                 while stat_diff > 0:
                     malus += min(4, stat_diff) * multiplier
@@ -330,6 +326,8 @@ class MonsterEntity(GenericEntity):
         return None
 
     def add_status(self, status_type, turns):
+        if not status_type.apply_success(self):
+            return
         status = self.get_status(status_type)
         if status is not None:
             status.stack(self, turns)

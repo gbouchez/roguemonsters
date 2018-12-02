@@ -60,6 +60,7 @@ def attack(attacker, target):
         )
     )
     target.take_damage(damage, attacker)
+    attacker.apply_attack_effect(target)
 
 
 def make_attack_roll(monster):

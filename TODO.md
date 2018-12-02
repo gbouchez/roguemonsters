@@ -17,8 +17,8 @@
  - add items and types, refactor item chances calc
  - better distance calculation
  - effective level of race/class with more than just stats
- - more status effects (poison !)
- - status effect on attack (giant spider !)
+ - more status effects
+ - status effect on attack with weapons
  - equip/remove items
  - manage 2handed weapons
  - magic
@@ -79,3 +79,6 @@
  - "breath" type reload for spider webs
  - various level types with random additional stairs in water
  - display current depth in stats
+ - fix stairs colors
+ - add poison resistance
+ - fix beasts attacking too fast

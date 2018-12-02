@@ -25,9 +25,12 @@ class Inventory:
         if item not in self.items:
             # todo error ? something else ?
             return
-        for _ in list(filter(lambda entity: entity.template.item_type == item.template.item_type, self.items)):
-            _.equipped = False
+        self.unequip(item.template.item_type)
         item.equipped = True
+
+    def unequip(self, slot):
+        for _ in list(filter(lambda entity: entity.template.item_type == slot, self.items)):
+            _.equipped = False
 
     def remove_item(self, item, delete=True):
         if item.equipped:

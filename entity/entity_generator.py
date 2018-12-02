@@ -64,13 +64,22 @@ def generate_monster(game_map, level=1):
     monster.gain_level(1 + level - race.get_level())
     monster.init_fighter()
 
+    hands = 0
     for slot in monster.equip_slots:
+        if slot in (ItemType.WEAPON, ItemType.SHIELD):
+            if hands >= 2:
+                continue
+            hands += 1
         item = generate_item_entity(
             level=monster.get_effective_level(),
             item_type=slot,
             max_weight=monster.get_strength()
         )
+
         if item:
+            if slot == ItemType.WEAPON and item.template.hands == 2:
+                hands += 1
+                monster.inventory.unequip(ItemType.SHIELD)
             monster.inventory.add_item(item)
             monster.inventory.equip(item)
 
@@ -78,7 +87,9 @@ def generate_monster(game_map, level=1):
 
 
 def get_random_item_type(level):
-    return choice([ItemType.POTION, ItemType.WEAPON])
+    types = [ItemType.POTION, ItemType.WEAPON, ItemType.SHIELD, ItemType.BODY]
+    weights = [0.55, 0.20, 0.10, 0.15]
+    return choice(types, p=weights)
 
 
 def generate_item_entity(game_map=None, level=1, item_type=None, max_weight=None):
@@ -88,7 +99,8 @@ def generate_item_entity(game_map=None, level=1, item_type=None, max_weight=None
         templates = list(filter(lambda template: template.get_level() <= level, templates_by_type.get(item_type)))
     else:
         templates = list(filter(lambda template: template.get_level() <= level
-                                and template.weight <= max_weight, templates_by_type.get(item_type)))
+                                and template.weight <= max_weight * template.get_strength_multiplier(),
+                                templates_by_type.get(item_type)))
     if not templates:
         return None
 
